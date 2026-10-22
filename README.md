@@ -2,6 +2,12 @@
 
 A responsive, **static** fan-made web app for [*The Isle: EVRIMA*](https://store.steampowered.com/app/376210/The_Isle/), tailored to ORIGIN server assumptions. Recovered from the user's final interactive prototype (September 2026).
 
+## Entomb Planner (October 2026)
+
+The **Entomb Planner** tab lets you model generations 1 through 5, individual Prime flags, 3 or 4 new picks per life, inherited mutation stacks (up to 16), documented Life 1/2/3+ effect tiers, lineage rollover, and mutation combinations. It provides separate lineage share links and can import an existing Custom Build. It does not change the ordinary rankings or pretend to predict exact PvP damage.
+
+See [Entomb modeling notes](docs/ENTOMB_NOTES.md) for sourcing, caveats, mutation availability, and the scoring distinction.
+
 ## Features
 
 - 22-dinosaur rankings, adult-matchup cards, solo ratings, and role details

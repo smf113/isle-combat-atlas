@@ -1,0 +1,35 @@
+/* Isolated lineage planner styles; inherits existing atlas visual tokens. */
+#tab-entomb .lineage-intro{border:1px solid #2d5860;border-radius:12px;background:linear-gradient(120deg,#122c35,#102035);padding:18px;margin-bottom:14px}
+#tab-entomb .lineage-intro h2{font-size:clamp(19px,2.8vw,26px);line-height:1.25;margin:0 0 7px}
+#tab-entomb .lineage-intro p{margin:0;max-width:850px}
+#tab-entomb .lineage-control-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+#tab-entomb .generation-steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:14px 0}
+#tab-entomb .generation-step{display:flex;flex-direction:column;gap:4px;text-align:left;padding:12px 10px;border:1px solid var(--viz-border);border-radius:9px;background:var(--viz-card);min-height:102px}
+#tab-entomb .generation-step[aria-pressed='true']{border-color:var(--viz-accent);background:var(--viz-accent-bg)}
+#tab-entomb .generation-step .gnum{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#7cd7cf;font-weight:800}
+#tab-entomb .generation-step strong{font-size:16px}
+#tab-entomb .lineage-editor{display:grid;grid-template-columns:minmax(250px,.85fr) minmax(0,1.15fr);gap:12px}
+#tab-entomb .lineage-slot-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+#tab-entomb .lineage-disabled{opacity:.52}
+#tab-entomb .lineage-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+#tab-entomb .lineage-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#tab-entomb .lineage-metrics>div{padding:12px;border:1px solid var(--viz-border);border-radius:9px;background:#0b1b2c}
+#tab-entomb .lineage-metrics strong{font-size:25px;line-height:1.15}
+#tab-entomb .lineage-pool{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:12px}
+#tab-entomb .lineage-chip{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:8px;border:1px solid var(--viz-border);background:#0d2132;min-width:0}
+#tab-entomb .lineage-chip.inherited{border-color:#527d88}
+#tab-entomb .lineage-chip.fresh{border-color:#446653;background:#142c2a}
+#tab-entomb .lineage-chip-name{font-weight:650;font-size:13px;overflow-wrap:anywhere}
+#tab-entomb .lineage-chip-meta{font-size:11px;color:var(--viz-muted)}
+#tab-entomb .lineage-bottom{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+#tab-entomb .lineage-tier-list{max-height:360px;overflow:auto}
+#tab-entomb .lineage-tier-row{display:flex;justify-content:space-between;gap:16px;padding:6px 0;border-bottom:1px solid #304055;font-size:12px}
+#tab-entomb .lineage-tier-row strong{text-align:right;white-space:nowrap}
+#tab-entomb .lineage-warning{color:#f0bb79}
+#tab-entomb #entombNotes p{margin:8px 0;font-size:12px;color:var(--viz-muted)}
+#tab-entomb #entombNotes p:first-child{color:var(--viz-text)}
+#tab-entomb .lineage-check{display:flex;align-items:center;gap:8px;font-size:13px;margin:12px 0}
+#tab-entomb .lineage-check input{width:18px;height:18px;accent-color:var(--viz-accent)}
+#tab-entomb .lineage-source{font-size:12px;border-top:1px solid var(--viz-border);padding-top:11px;margin-top:10px;color:var(--viz-muted)}
+@media(max-width:800px){#tab-entomb .lineage-editor,#tab-entomb .lineage-bottom{grid-template-columns:1fr}#tab-entomb .generation-steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){#tab-entomb .lineage-control-grid{grid-template-columns:1fr 1fr}#tab-entomb .lineage-control-grid>*:first-child{grid-column:1/-1}#tab-entomb .generation-steps{grid-template-columns:repeat(2,minmax(0,1fr))}#tab-entomb .lineage-slot-grid,#tab-entomb .lineage-pool{grid-template-columns:1fr}#tab-entomb .lineage-metrics{grid-template-columns:1fr 1fr}#tab-entomb .lineage-metrics>div:last-child{grid-column:1/-1}}
