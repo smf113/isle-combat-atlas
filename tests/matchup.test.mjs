@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DEFAULT_SIDE,SCENARIO_DEFAULT,maturity,resolveSide,calculateMatchup,compareAcrossGrowth,extractLineageLink} from '../site/src/matchup-model.js';
-import {emptyLineage,MAX_GENERATION} from '../site/src/entomb-model.js';
-const side=(dino='Allosaurus',extras={})=>({...DEFAULT_SIDE(dino),...extras});
+import {DEFAULT_SIDE,SCENARIO_DEFAULT,maturity,resolveSide,calculateMatchup,compareAcrossGrowth,extractLineageLink,standardPicks,advantagePosition} from '../site/src/matchup-model.js';
+import {emptyLineage,MAX_GENERATION,eligible,byName} from '../site/src/entomb-model.js';
+import {dinos} from '../site/src/data.js';
+const side=(dino='Allosaurus',extras={})=>({...DEFAULT_SIDE(dino),source:'none',...extras});
 function entomb(dino='Allosaurus',g=3){const lives=emptyLineage();return {v:1,dino,sex:'Male',generation:g,lives,contexts:[]};}
 
 test('symmetric default combatants: index = 1, no unsupported probability',()=>{
@@ -84,4 +85,43 @@ test('growth ladder consistently evaluates relative to a fixed opponent',()=>{
  assert.equal(rows[0].a.primeActive,false);
  assert.equal(rows.at(-1).a.primeActive,true);
  assert.ok(rows.at(-1).adjusted>rows[0].adjusted);
+});
+test('fresh calculator sides default to a standard one-life build, not an unmutated baseline',()=>{
+  const a=DEFAULT_SIDE('Allosaurus'),b=DEFAULT_SIDE('Ceratosaurus');
+  assert.equal(a.source,'standard');assert.equal(b.source,'standard');
+  assert.equal(resolveSide(a).active.length,3);
+  assert.equal(resolveSide(b).active.length,3);
+  assert.equal(resolveSide({...a,prime:true}).active.length,4);
+});
+test('each standard preset is distinct, slot-legal and never includes unavailable Traumatic Thrombosis',()=>{
+  for(const d of dinos){
+    for(const sex of ['Male','Female']){
+      const names=standardPicks(d.n,sex);
+      assert.equal(names.length,4,`${d.n}/${sex}: four recommendations`);
+      assert.equal(new Set(names).size,4,`${d.n}/${sex}: no duplicates`);
+      names.forEach((name,i)=>{
+        assert.ok(name,`${d.n}/${sex}: slot ${i+1} must have a choice`);
+        assert.ok(eligible(byName(name),d,sex,i+1),`${d.n}/${sex}: slot ${i+1} ${name} is legal`);
+        assert.notEqual(name,'Traumatic Thrombosis');
+      });
+      assert.equal(resolveSide({...DEFAULT_SIDE(d.n),sex}).active.length,3);
+    }
+  }
+});
+test('recommended standard mutation selections respect juvenile unlock timing',()=>{
+ const d=DEFAULT_SIDE('Allosaurus');
+ assert.equal(resolveSide({...d,growth:25}).active.length,1);
+ assert.equal(resolveSide({...d,growth:25}).pending.length,2);
+ assert.equal(resolveSide({...d,growth:75,prime:true}).active.length,4);
+});
+test('advantage spectrum matches A on left and B on right; marker reverses with score',()=>{
+  assert.equal(advantagePosition(1),50);
+  assert.ok(advantagePosition(2)<50);
+  assert.ok(advantagePosition(0.5)>50);
+  assert.ok(Math.abs(advantagePosition(2)+advantagePosition(.5)-100)<1e-10);
+  const ab=calculateMatchup(side('Allosaurus'),side('Ceratosaurus'));
+  const ba=calculateMatchup(side('Ceratosaurus'),side('Allosaurus'));
+  assert.ok(ab.adjusted>1);
+  assert.ok(advantagePosition(ab.adjusted)<50);
+  assert.ok(advantagePosition(ba.adjusted)>50);
 });

@@ -10,6 +10,11 @@
 #tab-growth .matchup-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 #tab-growth .matchup-fields label,#tab-growth .matchup-manual label{min-width:0;display:block}
 #tab-growth .matchup-range{width:100%;height:35px;accent-color:#58d1cf;cursor:pointer}
+#tab-growth .matchup-standard{margin-top:12px;padding:12px;border:1px solid #315765;border-radius:10px;background:#0c2030}
+#tab-growth .matchup-standard-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:7px;text-transform:capitalize}
+#tab-growth .matchup-standard .muted{font-size:12px;line-height:1.5;margin:4px 0 10px}
+#tab-growth .matchup-standard-picks{display:flex;flex-wrap:wrap;gap:6px}
+#tab-growth .matchup-standard-picks .pill{overflow-wrap:anywhere}
 #tab-growth .matchup-check{display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer}
 #tab-growth .matchup-check input{width:17px;height:17px;accent-color:#58d1cf}
 #tab-growth .matchup-manual{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
@@ -28,7 +33,7 @@
 #tab-growth .matchup-verdict-title{font-size:clamp(22px,3vw,29px);font-weight:800;line-height:1.3;margin:4px 0}
 #tab-growth .matchup-verdict-metrics{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px;max-width:260px}
 #tab-growth .matchup-spectrum{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;margin:17px 0;font-size:12px;font-weight:700;color:#c5d8e8}
-#tab-growth .matchup-spectrum-track{height:16px;border-radius:999px;position:relative;background:linear-gradient(90deg,#367b77,#304455 49%,#6e4152);border:1px solid #52637b}
+#tab-growth .matchup-spectrum-track{height:16px;border-radius:999px;position:relative;background:linear-gradient(90deg,#367b77,#304455 50%,#6e4152);border:1px solid #52637b}
 #tab-growth .matchup-spectrum-center{position:absolute;width:2px;height:20px;left:50%;top:-3px;background:#f0e9d5;opacity:.65}
 #tab-growth .matchup-spectrum-marker{position:absolute;z-index:2;top:-5px;transform:translateX(-50%);border:3px solid #f7fffb;background:#57d1cf;box-shadow:0 0 0 2px #16484d;border-radius:50%;width:24px;height:24px}
 #tab-growth .matchup-qualifier{font-size:12px;color:var(--viz-muted);line-height:1.6;margin-top:11px}
@@ -41,8 +46,8 @@
 #tab-growth .matchup-exclusions ul{padding-left:20px;margin:7px 0}
 #tab-growth .matchup-curve-list{display:grid;gap:8px;margin-top:11px}
 #tab-growth .matchup-curve-row{display:grid;grid-template-columns:45px minmax(80px,1fr) 62px minmax(100px,1fr);gap:12px;align-items:center;font-size:12px}
-#tab-growth .matchup-curve-track{height:9px;background:#1b2f42;border-radius:999px;position:relative}
-#tab-growth .matchup-curve-track>span{display:block;height:100%;background:linear-gradient(90deg,#4abcb5,#7dd7d1);border-radius:999px}
+#tab-growth .matchup-curve-track{height:10px;background:linear-gradient(90deg,#367b77,#304455 50%,#6e4152);border-radius:999px;position:relative;border:1px solid #52637b}
+#tab-growth .matchup-curve-track>.matchup-curve-marker{display:block;position:absolute;top:50%;transform:translate(-50%,-50%);height:14px;width:14px;border-radius:50%;background:#57d1cf;border:2px solid #f7fffb;box-shadow:0 0 0 1px #16484d;z-index:2}
 #tab-growth .matchup-curve-track i{position:absolute;width:2px;height:14px;top:-2px;left:50%;background:#e3eef6}
 #tab-growth .matchup-curve-row strong{text-align:right;font-variant-numeric:tabular-nums}
 #tab-growth .matchup-legacy{border:1px solid var(--viz-border);border-radius:11px;padding:14px;margin-top:15px}

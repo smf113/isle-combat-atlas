@@ -2,6 +2,13 @@
 
 **Scope:** Compare two configured dinosaurs, including Entomb lineages, rather than assume both are healthy unmutated adults. Neither this app nor GitHub Pages accesses the actual in-game server, health, statuses, combat damage formulas, or hidden species-specific curves. **A numeric index is not a win probability.** Treat it as a discussion aid and broad strategy categorization.
 
+## Calculator defaults and visual direction
+
+- Both contestants initially use **Recommended standard build**, a single-life set of three role-based mutations at adult growth; checking Prime enables a fourth.
+- Recommendations start from the existing archetype presets, retaining valid slot choices. Previously flagged unavailable/invalid picks (e.g. Traumatic Thrombosis) are substituted with legal, unique role-weighted options. The standard recommendations are advisory, not server-granted mutations; real unlock requirements still apply.
+- **Customize build** copies the recommended picks into editable single-life slots. **Unmutated baseline** and **Entomb lineage** remain alternate sources. A new `v2` browser save key migrates existing user-customized `v1` builds while upgrading untouched initial comparisons to standard defaults. Shared `#matchup=` snapshots remain version 1 for compatibility.
+- Both the main assessment and growth progression spectrum are ordered **A advantage | even | B advantage** (left to right). A÷B index above 1 therefore moves the marker LEFT of center. The growth visualization uses position markers, not a misleading filled progress bar.
+
 ## Calculation
 
 - **Power baseline:** Preserves the existing atlas heuristic: `16 + log2(adult kg + 20)*8 + threat*11 + solo*2`, adjusted by the existing piecewise growth/Prime maturity curve.

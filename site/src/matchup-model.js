@@ -1,15 +1,46 @@
 /** Transparent, scenario-conditioned relative matchup model. NOT combat telemetry or win probability.
  * Reuses the original growth curve and only models quantified direct combat mutation effects.
  */
-import {dinos} from './data.js';
+import {dinos,mutations,presets,weights,dims} from './data.js';
 import {activeAt,byName,eligible,tierEffect,MAX_GENERATION} from './entomb-model.js';
 
 export const MIN_GROWTH=25;
 export const SLOT_GROWTH=[25,50,75,75]; // approximate unlock stages, not exact patch-verified percentages
 export const SCENARIO_DEFAULT={aBleeding:false,bBleeding:false,aLowHealth:false,bLowHealth:false,bleedPressure:false};
-export const DEFAULT_SIDE=(dino='Allosaurus')=>({dino,growth:100,prime:false,sex:'Male',source:'none',manual:['','','',''],lineage:null,generation:1});
+export const DEFAULT_SIDE=(dino='Allosaurus')=>({dino,growth:100,prime:false,sex:'Male',source:'standard',manual:['','','',''],lineage:null,generation:1});
 const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,Number.isFinite(+v)?+v:lo));
 const findDino=n=>dinos.find(d=>d.n===n);
+/** Recommended *standard* (one-life) choices from the atlas role presets.
+ * Preserves every legal preset slot and substitutes currently ineligible entries
+ * with a legal, non-duplicate role-fit alternative. Does not grant unlocks in game.
+ */
+export function standardPicks(dino,sex='Male'){
+  const d=findDino(dino)||dinos[0],wanted=presets[d.arch]||[],used=new Set(),result=[];
+  for(let i=0;i<4;i++){
+    const slot=i+1,expected=byName(wanted[i]);
+    if(expected&&eligible(expected,d,sex,slot)&&!used.has(expected.n)){
+      used.add(expected.n);result.push(expected.n);continue;
+    }
+    const future=new Set(wanted.slice(i+1).filter((name,j)=>{
+      const candidate=byName(name);
+      return eligible(candidate,d,sex,i+2+j);
+    }));
+    const candidates=mutations.filter(m=>eligible(m,d,sex,slot)&&!used.has(m.n)&&!future.has(m.n));
+    const fallback=mutations.filter(m=>eligible(m,d,sex,slot)&&!used.has(m.n));
+    const pool=candidates.length?candidates:fallback;
+    const w=weights[d.arch];
+    pool.sort((a,b)=>{
+      // Ordinary Lifecycle perks are safer default recommendations than
+      // unlocks whose in-game acquisition is not guaranteed for every player.
+      const score=m=>dims.reduce((sum,k)=>sum+m.v[k]*w[k],0)+(m.cat==='Lifecycle'?0.2:0);
+      return score(b)-score(a)||a.n.localeCompare(b.n);
+    });
+    const name=pool[0]?.n||'';result.push(name);if(name)used.add(name);
+  }
+  return result;
+}
+/** A-left / B-right spectrum. A/B = 1 at 50%; A dominance moves LEFT. */
+export const advantagePosition=index=>clamp(50-Math.log(Math.max(.01,Number(index)||1))*24,8,92);
 export const maturity=(g,usePrime)=>{
   const growth=clamp(g,MIN_GROWTH,100),lerp=(a,b,t)=>a+(b-a)*t;
   const pts=usePrime&&growth>=75?[[75,.90],[87,1.08],[100,1.02]]:[[25,.15],[35,.24],[45,.36],[55,.50],[65,.67],[75,.82],[87,.94],[100,1]];
@@ -33,7 +64,7 @@ export function extractLineageLink(input){
 }
 export function resolveSide(s){
   const d=findDino(s?.dino)||dinos.find(x=>x.n==='Allosaurus')||dinos[0];
-  const growth=clamp(s?.growth,MIN_GROWTH,100),source=['none','manual','lineage'].includes(s?.source)?s.source:'none';
+  const growth=clamp(s?.growth,MIN_GROWTH,100),source=['none','standard','manual','lineage'].includes(s?.source)?s.source:'none';
   const sex=s?.sex==='Female'?'Female':'Male';
   const lineage=source==='lineage'&&validLineage(s?.lineage)&&s.lineage.dino===d.n?s.lineage:null;
   const generation=lineage?clamp(Math.trunc(s?.generation),1,MAX_GENERATION):1;
@@ -43,8 +74,9 @@ export function resolveSide(s){
   const pending=[], active=[],used=new Set();
   let sourceWarning='';
   if(source==='lineage'&&!lineage)sourceWarning='No matching lineage imported; treated as unmutated.';
-  if(source==='manual'){
-    (Array.isArray(s?.manual)?s.manual:[]).slice(0,4).forEach((name,i)=>{
+  if(source==='manual'||source==='standard'){
+    const picks=source==='standard'?standardPicks(d.n,sex):Array.isArray(s?.manual)?s.manual:[];
+    picks.slice(0,4).forEach((name,i)=>{
       const slot=i+1,m=byName(name);
       if(!m||used.has(name)||!eligible(m,d,sex,slot)||slot===4&&!earnedPrime)return;
       used.add(name);
