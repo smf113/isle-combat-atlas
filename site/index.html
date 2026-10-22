@@ -1,0 +1,117 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Unofficial ORIGIN The Isle: EVRIMA dinosaur rankings, build calculator and growth matchups"><meta name="theme-color" content="#0b1321"><title>ORIGIN Combat & Build Lab | The Isle: Evrima</title><link rel="icon" href="./assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./assets/styles.css"></head><body><header class="site-header"><div class="header-inner"><div class="brand-mark" aria-hidden="true">◈</div><div class="brand-copy"><div class="eyebrow">THE ISLE · EVRIMA / UNOFFICIAL COMMUNITY GUIDE</div><h1>ORIGIN Combat & Build Lab</h1><p>Solo rankings, mutation builds, growth matchups, and situational strategy.</p></div><span class="snapshot-chip">Research snapshot · Sep 2026</span></div></header><main class="main-shell"><div class="w-full min-w-0" id="origin-lab-v3">
+<div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+<div class="flex flex-wrap gap-2 items-center">
+<span class="server-badge">ORIGIN</span>
+<span class="mini-badge">5× Growth</span>
+<span class="mini-badge">No Rules</span>
+<span class="mini-badge" id="selectedBadge">Allosaurus</span>
+</div>
+<div class="prime-control">
+<button aria-pressed="true" class="prime-btn" data-prime="false" type="button">Normal</button>
+<button aria-pressed="false" class="prime-btn" data-prime="true" type="button">Prime</button>
+</div>
+</div>
+<div class="muted mb-3" id="primeNote">Normal · 3 active mutation slots. Prime becomes eligible at 75% growth.</div>
+<nav aria-label="Guide sections" class="tabs mb-4">
+<button aria-selected="true" class="tab-btn" data-tab="rankings" type="button">Rankings</button>
+<button aria-selected="false" class="tab-btn" data-tab="builds" type="button">Builds &amp; Growth</button>
+<button aria-selected="false" class="tab-btn" data-tab="custom" type="button">Custom Build</button>
+<button aria-selected="false" class="tab-btn" data-tab="growth" type="button">Growth Matchups</button>
+<button aria-selected="false" class="tab-btn" data-tab="mutations" type="button">Mutations</button>
+</nav>
+<section class="tab-panel" id="tab-rankings">
+<div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_150px_150px] mb-3">
+<input aria-label="Search dinosaurs" class="control" id="dinoSearch" placeholder="Search dinosaur…"/>
+<select class="control" id="dietFilter"><option value="all">All diets</option><option>Carnivore</option><option>Herbivore</option><option>Omnivore</option></select>
+<select class="control" id="soloFilter"><option value="all">All solo ratings</option><option value="4">Solo 4–5 only</option><option value="5">Solo 5 only</option></select>
+</div>
+<div class="rank-head"><span>#</span><span>Dinosaur</span><span>ORIGIN Solo Score</span><span>Solo</span><span>Threat</span></div>
+<div class="space-y-1.5" id="rankList"></div>
+<div class="detail-card mt-4" id="rankDetail"></div>
+</section>
+<section class="tab-panel hidden" id="tab-builds">
+<div class="grid gap-3 md:grid-cols-[220px_minmax(0,1fr)]">
+<div>
+<label class="field-label" for="buildDino">Dinosaur</label>
+<select class="control w-full" id="buildDino"></select>
+<div class="detail-card mt-3">
+<div class="section-title">ORIGIN growth plan</div>
+<div class="path mt-3"><span class="path-num">1</span><div><strong>Prime / instant grow</strong><div class="muted">Best when the goal is testing or preserving a finished PvP build.</div></div></div>
+<div class="path mt-3"><span class="path-num">2</span><div><strong>Natural 5×</strong><div class="muted">Prioritize concealment rather than risking the dinosaur for food ORIGIN can refill.</div></div></div>
+<div class="path mt-3"><span class="path-num">3</span><div><strong>Store proven builds</strong><div class="muted">Dino Storage makes a successful mutation combination worth preserving.</div></div></div>
+</div>
+</div>
+<div id="buildDetail"></div>
+</div>
+</section>
+<section class="tab-panel hidden" id="tab-custom">
+<div class="grid gap-4 lg:grid-cols-[minmax(280px,.8fr)_minmax(0,1.2fr)]">
+<div class="self-start space-y-3">
+<div class="detail-card">
+<div class="section-title">Custom mutation build</div>
+<div class="muted mt-1">Selection follows the dinosaur chosen anywhere else in the guide.</div>
+<div class="grid grid-cols-2 gap-2 mt-4">
+<label><span class="field-label">Dinosaur</span><select class="control w-full" id="customDino"></select></label>
+<label><span class="field-label">Sex</span><select class="control w-full" id="sexSelect"><option value="Male">Male</option><option value="Female">Female</option></select></label>
+</div>
+<div class="grid gap-3 mt-4">
+<label><span class="field-label">Slot 1</span><select class="mutation-select control w-full" data-slot="1" id="slot1"></select></label>
+<label><span class="field-label">Slot 2</span><select class="mutation-select control w-full" data-slot="2" id="slot2"></select></label>
+<label><span class="field-label">Slot 3</span><select class="mutation-select control w-full" data-slot="3" id="slot3"></select></label>
+<label id="slot4Wrap"><span class="field-label">Slot 4 · Prime</span><select class="mutation-select control w-full" data-slot="4" id="slot4"></select></label>
+</div>
+<div class="flex flex-wrap gap-2 mt-4">
+<button class="action-btn" id="loadRecommended" type="button">Load recommended</button>
+<button class="action-btn secondary" id="clearBuild" type="button">Clear</button>
+</div><div class="share-tools"><button class="action-btn secondary" id="shareBuild" type="button">Copy shareable build link</button><span aria-live="polite" class="muted" id="shareStatus" role="status"></span><input aria-label="Shareable build URL" class="control w-full hidden" id="shareFallback" readonly=""/></div>
+</div>
+<div class="detail-card">
+<div class="section-title">Situational context</div>
+<div class="muted mt-1">Turn on circumstances you actually expect this dinosaur to use. Conditional mutations receive value only when relevant.</div>
+<div class="context-grid mt-3" id="contextButtons"></div>
+</div>
+</div>
+<div aria-live="polite" id="customResult"></div>
+</div>
+</section>
+<section class="tab-panel hidden" id="tab-growth">
+<div class="grid gap-3 md:grid-cols-[220px_minmax(0,1fr)]">
+<div class="detail-card self-start">
+<label class="field-label" for="growthDino">Dinosaur</label>
+<select class="control w-full" id="growthDino"></select>
+<label class="field-label mt-4" for="opponentMode">Opponent comparison</label>
+<select class="control w-full" id="opponentMode"><option value="adult">Against full adults</option><option value="same">Against same-growth opponents</option></select>
+<div class="mt-4 text-sm font-semibold">Selected growth</div>
+<div class="growth-buttons mt-2" id="growthButtons"></div>
+<div class="muted mt-3" id="growthStateNote"></div>
+</div>
+<div>
+<div class="detail-card" id="growthSummary"></div>
+<div class="detail-card mt-3">
+<div class="flex flex-wrap justify-between gap-2"><div class="section-title">Growth matchup ladder</div><div class="muted">Equal skill · healthy · neutral terrain</div></div>
+<div class="mt-3" id="growthChart"></div>
+<div class="muted mt-3">Growth combat power is an estimate. Evrima growth curves are species-specific, so this avoids pretending weight, damage and speed all scale linearly.</div>
+</div>
+</div>
+</div>
+</section>
+<section class="tab-panel hidden" id="tab-mutations">
+<div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_190px] mb-3">
+<input class="control" id="mutationSearch" placeholder="Search mutation or effect…"/>
+<select class="control" id="mutationFilter">
+<option value="all">All mutations</option>
+<option value="Circumstantial">Circumstantial</option>
+<option value="Combat">Combat</option>
+<option value="Survival">Survival</option>
+<option value="Mobility">Mobility</option>
+<option value="Breeding">Breeding</option>
+<option value="Unlockable">Unlockable</option>
+<option value="Slot 2">Slot 2 exclusive</option>
+</select>
+</div>
+<div class="detail-card mb-3" id="mutationContext"></div>
+<div class="grid gap-2 md:grid-cols-2" id="mutationList"></div>
+</section>
+
+
+<aside class="methodology-note"><strong>How scoring works</strong><p>Scores compare each build to the strongest combinations found for that species’ role, slot count, sex, and selected circumstances. “Favored” matchups assume healthy, equal-skill, neutral-ground fights; Prime, server tweaks, pack size, terrain and game patches can change outcomes. <a href="./methodology.html">Read the methodology</a>.</p></aside></div></main><footer class="site-footer"><span>Community strategy model • Scores and matchup estimates are subjective, not live game telemetry.</span><span>Not affiliated with The Isle or ORIGIN.</span><a href="https://github.com/smf113/isle-combat-atlas" rel="noopener noreferrer" target="_blank">Powered by GitHub Pages</a></footer><script type="module" src="./src/app.js"></script></body></html>
