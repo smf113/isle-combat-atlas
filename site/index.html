@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Unofficial ORIGIN The Isle: EVRIMA dinosaur rankings, build calculator and growth matchups"><meta name="theme-color" content="#0b1321"><title>ORIGIN Combat & Build Lab | The Isle: Evrima</title><link rel="icon" href="./assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./assets/styles.css"><link rel="stylesheet" href="./assets/entomb.css"></head><body><header class="site-header"><div class="header-inner"><div class="brand-mark" aria-hidden="true">◈</div><div class="brand-copy"><div class="eyebrow">THE ISLE · EVRIMA / UNOFFICIAL COMMUNITY GUIDE</div><h1>ORIGIN Combat & Build Lab</h1><p>Solo rankings, mutation builds, growth matchups, and situational strategy.</p></div><span class="snapshot-chip">Research snapshot · Sep 2026</span></div></header><main class="main-shell"><div class="w-full min-w-0" id="origin-lab-v3">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Unofficial ORIGIN The Isle: EVRIMA dinosaur rankings, build calculator and growth matchups"><meta name="theme-color" content="#0b1321"><title>ORIGIN Combat & Build Lab | The Isle: Evrima</title><link rel="icon" href="./assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./assets/styles.css"><link rel="stylesheet" href="./assets/entomb.css"><link rel="stylesheet" href="./assets/matchup.css"></head><body><header class="site-header"><div class="header-inner"><div class="brand-mark" aria-hidden="true">◈</div><div class="brand-copy"><div class="eyebrow">THE ISLE · EVRIMA / UNOFFICIAL COMMUNITY GUIDE</div><h1>ORIGIN Combat & Build Lab</h1><p>Solo rankings, mutation builds, growth matchups, and situational strategy.</p></div><span class="snapshot-chip">Research snapshot · Sep 2026</span></div></header><main class="main-shell"><div class="w-full min-w-0" id="origin-lab-v3">
 <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
 <div class="flex flex-wrap gap-2 items-center">
 <span class="server-badge">ORIGIN</span>
@@ -17,7 +17,7 @@
 <button aria-selected="false" class="tab-btn" data-tab="builds" type="button">Builds &amp; Growth</button>
 <button aria-selected="false" class="tab-btn" data-tab="custom" type="button">Custom Build</button>
 <button aria-selected="false" class="tab-btn" data-tab="entomb" type="button">Entomb Planner</button>
-<button aria-selected="false" class="tab-btn" data-tab="growth" type="button">Growth Matchups</button>
+<button aria-selected="false" class="tab-btn" data-tab="growth" type="button">Matchup Calculator</button>
 <button aria-selected="false" class="tab-btn" data-tab="mutations" type="button">Mutations</button>
 </nav>
 <section class="tab-panel" id="tab-rankings">
@@ -83,6 +83,14 @@
   <div class="lineage-bottom"><div class="detail-card"><div id="entombTiers"></div></div><div class="detail-card"><div class="section-title">Situational scoring</div><div class="muted mt-1">Select conditions relevant to this lineage's intended playstyle.</div><div id="entombContexts" class="context-grid mt-3"></div><div class="section-title mt-4">Progression and caveats</div><div id="entombNotes"></div><div class="lineage-source">Values are community-documented and may vary by patch/server. This planner does not access ORIGIN accounts or game saves. <a href="https://isla-sonora.com/docs/mutations?_locale=en" target="_blank" rel="noopener noreferrer">Mutation tiers</a> · <a href="https://efg.io.vn/guides/entomb?lang=en" target="_blank" rel="noopener noreferrer">Entomb cap and rollover</a></div></div></div>
 </section>
 <section class="tab-panel hidden" id="tab-growth">
+<div class="matchup-intro"><h2>1v1 Matchup Calculator</h2><p>Compare any two EVRIMA dinosaurs independently. Adjust growth, Prime, individual mutations, or complete Entomb lineages on either side. Only supported conditional combat effects modify the calculated pressure index; other effects remain visible without fabricated numbers.</p></div>
+<div class="matchup-grid"><div id="matchupSideA"></div><div id="matchupSideB"></div></div>
+<div class="detail-card matchup-scenario"><div class="section-title">Fight circumstances</div><p class="muted">Mark existing injuries or health conditions for each dinosaur. These activate only the mutation effects whose stated requirements are met.</p><div id="matchupConditions" class="matchup-conditions"></div></div>
+<div class="matchup-actions"><button type="button" class="action-btn" id="matchupSwap">Swap sides</button><button type="button" class="action-btn secondary" id="matchupShare">Copy matchup link</button><button type="button" class="action-btn secondary" id="matchupReset">Reset calculator</button></div>
+<div class="muted" role="status" aria-live="polite" id="matchupStatus"></div><input class="control w-full hidden" id="matchupShareFallback" readonly aria-label="Shareable matchup URL">
+<div class="detail-card" id="matchupResult"></div>
+<div class="detail-card mt-3"><div class="section-title">Your growth progression against this opponent</div><div class="muted">Side A's growth varies while Side B's current growth, build and conditions remain fixed. Each row recalculates Prime and new mutation-slot activation.</div><div id="matchupGrowthCurve" class="matchup-curve-list"></div><p class="muted mt-3" id="matchupMethodNote"></p></div>
+<details class="matchup-legacy"><summary>Original baseline growth matchups (ignores mutation lineages)</summary>
 <div class="grid gap-3 md:grid-cols-[220px_minmax(0,1fr)]">
 <div class="detail-card self-start">
 <label class="field-label" for="growthDino">Dinosaur</label>
@@ -102,7 +110,7 @@
 </div>
 </div>
 </div>
-</section>
+</details></section>
 <section class="tab-panel hidden" id="tab-mutations">
 <div class="grid gap-2 sm:grid-cols-[minmax(0,1fr)_190px] mb-3">
 <input class="control" id="mutationSearch" placeholder="Search mutation or effect…"/>
@@ -122,4 +130,4 @@
 </section>
 
 
-<aside class="methodology-note"><strong>How scoring works</strong><p>Scores compare each build to the strongest combinations found for that species’ role, slot count, sex, and selected circumstances. “Favored” matchups assume healthy, equal-skill, neutral-ground fights; Prime, server tweaks, pack size, terrain and game patches can change outcomes. <a href="./methodology.html">Read the methodology</a>.</p></aside></div></main><footer class="site-footer"><span>Community strategy model • Scores and matchup estimates are subjective, not live game telemetry.</span><span>Not affiliated with The Isle or ORIGIN.</span><a href="https://github.com/smf113/isle-combat-atlas" rel="noopener noreferrer" target="_blank">Powered by GitHub Pages</a></footer><script type="module" src="./src/app.js"></script><script type="module" src="./src/entomb-ui.js"></script></body></html>
+<aside class="methodology-note"><strong>How scoring works</strong><p>Scores compare each build to the strongest combinations found for that species’ role, slot count, sex, and selected circumstances. The Matchup Calculator uses a separate relative-pressure heuristic, including only explicitly modeled combat mutation effects; neither result is a win probability. Prime, terrain, player skill, pack size and game updates can change outcomes. <a href="./methodology.html">Read the methodology</a>.</p></aside></div></main><footer class="site-footer"><span>Community strategy model • Scores and matchup estimates are subjective, not live game telemetry.</span><span>Not affiliated with The Isle or ORIGIN.</span><a href="https://github.com/" rel="noopener noreferrer" target="_blank">Powered by GitHub Pages</a></footer><script type="module" src="./src/app.js"></script><script type="module" src="./src/entomb-ui.js"></script><script type="module" src="./src/matchup-ui.js"></script></body></html>
