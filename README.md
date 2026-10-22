@@ -36,7 +36,7 @@ Then open http://localhost:8000. A simple file:// launch may block ES modules: u
 2. Upload this repository's files, preserving `.github/workflows/pages.yml`, `site/`, `tests/` and `docs/`. Or use Git to commit the files to `main`.
 3. Go to **Settings → Pages → Build and deployment → Source → GitHub Actions**.
 4. Go to **Actions**, find **Deploy static site to GitHub Pages**, and run it if it has not run on the initial push.
-5. Your URL should be `https://smf113.github.io/isle-combat-atlas/` (substitute repo name). Check the GitHub Pages settings for the actual URL.
+5. Your URL should be `https://YOURUSERNAME.github.io/isle-combat-atlas/` (substitute repo name). Check the GitHub Pages settings for the actual URL.
 
 The provided workflow deploys **only `site/`** when changes land on `main`; it does not require a paid hosting service or any API keys.
 
@@ -61,3 +61,11 @@ Suggested change process: open a GitHub issue, branch, modify, run `npm test`, p
 ### Disclaimer
 
 Unofficial fan project. Not affiliated with *The Isle*, Afterthought LLC, or ORIGIN. No remote account connection, in-game manipulation, tracking or data collection. Hosted content is public once published on GitHub Pages.
+
+## 1v1 Matchup Calculator (October 2026)
+
+The former **Growth Matchups** tab now opens a side-by-side **Matchup Calculator**. Both sides have independent species, growth, Prime eligibility, sex, and one of three mutation sources: unmutated baseline, manual single-life build, or imported Entomb lineage. Select **Import current Entomb Planner** to read the current saved lineage; paste another lineage's `#lineage=` share URL for the opponent. You can compare different generations, switch sides, and copy a URL storing the complete matchup. The older baseline growth ladder is still available in a collapsed section below the calculator.
+
+A growth projection shows how Side A changes against the currently configured Side B. A new mutation chosen in the current life is counted only after its *approximate* acquisition stage (25/50/75/75%, with the 4th slot requiring Prime); inherited mutations are modeled available immediately after Entomb. An intended Prime selection does not grant its growth curve or fourth slot below 75% growth.
+
+**Interpretation:** The pressure ratio and categorical assessment are experimental comparative heuristics, **not a win probability or measured game damage**. They use the existing snapshot's adult size, solo/threat rating, growth multipliers, and manually documented favorable/dangerous opponents. Only specific quantified, applicable mutation effects (Hemomania, Accelerated Prey Drive, Congenital Hypoalgesia) change this ratio. The tool shows bleed resistance and other mutations without inventing a universal offense/defense multiplier. Conditions such as bleeding and low health are explicit per-side inputs. Entomb Life 1/2/3+ values follow the existing `entomb-model.js` tiers. See [matchup model notes](docs/MATCHUP_NOTES.md).
