@@ -20,6 +20,10 @@ def saved_matchup(page):
     return page.evaluate('JSON.parse(localStorage.getItem("origin-matchup-calculator-v2"))')
 
 
+def assert_other_side_unchanged(page, saved_side):
+    assert saved_matchup(page)['a'] == saved_side, 'Import into B changed Side A'
+
+
 def planner_snapshot(page):
     return page.evaluate('window.originEntombPlanner.getSnapshot()')
 
@@ -206,7 +210,7 @@ try:
         broken = saved_matchup(page)
         broken['a']['lineage']['dino'] = 'Ceratosaurus'
         page.evaluate('(value) => localStorage.setItem("origin-matchup-calculator-v2", JSON.stringify(value))', broken)
-        must_reject(lambda: assert saved_matchup(page)['a'] == saved_a, 'other side overwritten')
+        must_reject(lambda: assert_other_side_unchanged(page, saved_a), 'other side overwritten')
         page.evaluate('(value) => localStorage.setItem("origin-matchup-calculator-v2", JSON.stringify(value))',
                       {**broken, 'a': saved_a})
 
