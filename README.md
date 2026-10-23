@@ -85,6 +85,6 @@ See [matchup notes](docs/MATCHUP_NOTES.md) for assumptions and constraints.
 
 ## Version and changelog
 
-The first documented application release is **1.0.1 — October 23, 2026**, displayed in the footer and documented in [the changelog](site/changelog.html). The gameplay-data research snapshot remains September 2026; the release is not a game-data refresh. Earlier changes were commits, not numbered releases.
+The current maintenance release is **1.0.2 — October 23, 2026**; version 1.0.1 was the first documented release. The footer links to [the changelog](site/changelog.html). The gameplay-data research snapshot remains September 2026; the release is not a game-data refresh. Earlier changes were commits, not numbered releases.
 
-For later releases: update `package.json` version, the footer version in `site/index.html`, and the latest dated entry in `site/changelog.html`. Run `npm test` (includes a version consistency check) and `python tests/browser_smoke.py`, then commit to `main` so GitHub Actions verifies and deploys.
+For later releases: update `package.json` version, the footer version in `site/index.html`, and the latest dated entry in `site/changelog.html`. Run `npm test` (reads version dynamically from package.json) and `python tests/browser_smoke.py` (real Playwright Chromium checks with deliberate negative controls), then open a PR and merge only when GitHub Actions passes. Browser screenshots are uploaded as CI artifacts for inspection. The browser smoke only checks 390px narrow-screen geometry, not every mobile device.

@@ -10,7 +10,6 @@ if(root&&panel){
   const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const defaults=()=>({v:1,a:DEFAULT_SIDE('Allosaurus'),b:DEFAULT_SIDE('Ceratosaurus'),scenario:{...SCENARIO_DEFAULT}});
   let state=defaults(),info='';
-  const planCopy=x=>JSON.parse(JSON.stringify(x));
   const sanitizeSide=x=>{
     const dino=dinos.some(d=>d.n===x?.dino)?x.dino:'Allosaurus';
     const side={...DEFAULT_SIDE(dino),source:['none','standard','manual','lineage'].includes(x?.source)?x.source:'standard',sex:x?.sex==='Female'?'Female':'Male',growth:Math.max(25,Math.min(100,Math.round(Number(x?.growth)||100))),prime:!!x?.prime,manual:Array.from({length:4},(_,i)=>typeof x?.manual?.[i]==='string'?x.manual[i].slice(0,128):''),generation:normalizeGeneration(x?.generation)};
