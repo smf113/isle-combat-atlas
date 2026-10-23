@@ -54,12 +54,53 @@ test('A/B swap remains reciprocal and mirrored; 50% row with fixed B preserved',
  assert.deepEqual(rows.map(r=>r.growth),[25,35,45,50,55,65,75,87,100]);
  assert.ok(rows.every(r=>r.b.growth===100));
 });
-test('visible package release and latest changelog version/date are consistent',()=>{
- const pkg=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8'));
- const index=readFileSync(new URL('../site/index.html',import.meta.url),'utf8');
- const log=readFileSync(new URL('../site/changelog.html',import.meta.url),'utf8');
- assert.equal(pkg.version,'1.0.1');
- assert.ok(index.includes('id="siteVersion"')&&index.includes('Version '+pkg.version));
- assert.ok(log.includes('Version '+pkg.version+' — October 23, 2026'));
- assert.ok(log.includes('Gameplay-data snapshot: September 2026'));
+const releaseFiles=()=>({
+  pkg:JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8')),
+  index:readFileSync(new URL('../site/index.html',import.meta.url),'utf8'),
+  log:readFileSync(new URL('../site/changelog.html',import.meta.url),'utf8')
+});
+const attribute=(tag,name)=>tag.match(new RegExp('\\\\b'+name+'="([^"]*)"'))?.[1];
+function verifyRelease({pkg,index,log}){
+  const version=pkg.version;
+  assert.match(version,/^\\d+\\.\\d+\\.\\d+$/,'Package must use semantic major.minor.patch format');
+  // Constrain version checks to the actual footer anchor, not a random mention elsewhere.
+  const footer=index.match(/<footer\\b[^>]*>([\\s\\S]*?)<\\/footer>/i)?.[1];
+  assert.ok(footer,'Expected the site footer');
+  const anchor=footer.match(/<a\\b(?=[^>]*\\bid="siteVersion")[^>]*>[\\s\\S]*?<\\/a>/i)?.[0];
+  assert.ok(anchor,'Expected #siteVersion anchor in footer');
+  assert.equal(attribute(anchor,'href'),'./changelog.html');
+  assert.equal(attribute(anchor,'aria-label'),`View changelog for version ${version}`);
+  assert.equal(anchor.replace(/<[^>]*>/g,'').trim(),`Version ${version} · Changelog`);
+  // Only the first release section is authoritative. Historical entries cannot mask staleness.
+  const firstReleaseHeading=log.match(/<section\\b[^>]*class="detail-card"[^>]*>\\s*<h2\\b[^>]*>([^<]*)<\\/h2>/i)?.[1];
+  assert.ok(firstReleaseHeading,'Expected first release heading in changelog');
+  const latest=firstReleaseHeading.match(/^Version (\\d+\\.\\d+\\.\\d+) — (.+)$/);
+  assert.ok(latest,'Expected a version and date in first release heading');
+  assert.equal(latest[1],version,'Latest changelog heading must match package.json');
+  assert.match(latest[2],/^(January|February|March|April|May|June|July|August|September|October|November|December) \\d{1,2}, \\d{4}$/);
+  const snapshot=log.match(/<strong>Gameplay-data snapshot: ([^<]+)<\\/strong>/)?.[1];
+  assert.equal(snapshot,'September 2026.','Gameplay snapshot is not tied to application release date');
+  return version;
+}
+test('package version matches footer text, accessible name, linked changelog and latest heading',()=>{
+  const files=releaseFiles();
+  assert.equal(verifyRelease(files),files.pkg.version);
+});
+test('release checks reject stale footer labels, accessible names and historical-entry false positives',()=>{
+  const files=releaseFiles(),version=files.pkg.version;
+  assert.throws(()=>verifyRelease({...files,index:files.index.replace(
+    `Version ${version} · Changelog`, 'Version 0.0.0 · Changelog'
+  )}),/Version/);
+  assert.throws(()=>verifyRelease({...files,index:files.index.replace(
+    `View changelog for version ${version}`, 'View changelog for version 0.0.0'
+  )}),/version/);
+  assert.throws(()=>verifyRelease({...files,index:files.index.replace(
+    'href="./changelog.html" id="siteVersion"', 'href="./missing.html" id="siteVersion"'
+  )}),/changelog/);
+  assert.throws(()=>verifyRelease({...files,log:files.log.replace(
+    `<h2>Version ${version} —`, '<h2>Version 0.0.0 —'
+  )}),/Latest changelog/);
+  assert.throws(()=>verifyRelease({...files,log:files.log.replace(
+    'Gameplay-data snapshot: September 2026.','Gameplay-data snapshot:'
+  )}),/Gameplay snapshot/);
 });
