@@ -25,25 +25,25 @@ try:
   page.locator('#matchupSideA [data-field="prime"]').uncheck()
   page.locator('#matchupSideA [data-field="source"]').select_option('standard')
   page.locator('#matchupSideA [data-customize-standard]').click()
-  assert page.locator('#matchupSideA [data-slot="4"]').is_disabled()
+  assert page.locator('#matchupSideA select[data-slot="4"]').is_disabled()
   assert page.locator('#matchupSideA [data-clear-retained]').count()==1
-  page.locator('#matchupSideA [data-slot="3"]').select_option('Accelerated Prey Drive')
+  page.locator('#matchupSideA select[data-slot="3"]').select_option('Accelerated Prey Drive')
   page.locator('#matchupSideA [data-clear-retained]').click()
-  assert page.locator('#matchupSideA [data-slot="4"]').input_value()==''
+  assert page.locator('#matchupSideA select[data-slot="4"]').input_value()==''
   page.locator('#matchupSideA [data-field="prime"]').check()
   page.locator('#matchupSideA [data-field="sex"]').select_option('Female')
-  page.locator('#matchupSideA [data-slot="2"]').select_option('Parthenogenesis')
+  page.locator('#matchupSideA select[data-slot="2"]').select_option('Parthenogenesis')
   page.locator('#matchupSideA [data-field="sex"]').select_option('Male')
-  assert page.locator('#matchupSideA [data-slot="2"]').input_value()=='Parthenogenesis'
-  assert 'EXCLUDED' in page.locator('#matchupSideA [data-slot="2"] option:checked').inner_text()
-  page.locator('#matchupSideA [data-slot="2"]').select_option('')
+  assert page.locator('#matchupSideA select[data-slot="2"]').input_value()=='Parthenogenesis'
+  assert 'EXCLUDED' in page.locator('#matchupSideA select[data-slot="2"] option:checked').inner_text()
+  page.locator('#matchupSideA select[data-slot="2"]').select_option('')
   state=page.evaluate('JSON.parse(localStorage.getItem("origin-matchup-calculator-v2"))')
   state['a']['manual'][1]='Restored unknown mutation'
   page.evaluate('(s)=>localStorage.setItem("origin-matchup-calculator-v2",JSON.stringify(s))',state)
   page.reload(wait_until='domcontentloaded');page.locator('[data-tab="growth"]').click()
-  assert page.locator('#matchupSideA [data-slot="2"]').input_value()=='Restored unknown mutation'
-  assert 'EXCLUDED' in page.locator('#matchupSideA [data-slot="2"] option:checked').inner_text()
-  page.locator('#matchupSideA [data-slot="2"]').select_option('')
+  assert page.locator('#matchupSideA select[data-slot="2"]').input_value()=='Restored unknown mutation'
+  assert 'EXCLUDED' in page.locator('#matchupSideA select[data-slot="2"] option:checked').inner_text()
+  page.locator('#matchupSideA select[data-slot="2"]').select_option('')
   assert '50%' in page.locator('#matchupGrowthCurve').inner_text()
   assert page.locator('#matchupGrowthCurve .matchup-curve-row').count()==9
   assert page.locator('#matchupResult .matchup-spectrum').inner_text().index('A advantage') < page.locator('#matchupResult .matchup-spectrum').inner_text().index('B advantage')
