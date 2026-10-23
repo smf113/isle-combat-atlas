@@ -1,79 +1,258 @@
-"""Real Chromium regression suite for actual HTML and JS. Install: pip install playwright; playwright install chromium."""
-import json, subprocess, time
+"""Real Chromium smoke and negative-control checks against shipped HTML and JS.
+
+Run: python tests/browser_smoke.py
+Prerequisites: pip install playwright && playwright install chromium
+"""
+import copy
+import json
+import subprocess
+import time
 from pathlib import Path
 from urllib.parse import quote
 from playwright.sync_api import sync_playwright
-root=Path(__file__).resolve().parents[1]
-server=subprocess.Popen(['python','-m','http.server','8765','--bind','127.0.0.1','--directory',str(root/'site')],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-base='http://127.0.0.1:8765/'
+
+ROOT = Path(__file__).resolve().parents[1]
+BASE = 'http://127.0.0.1:8765/'
+ARTIFACTS = ROOT / 'browser-artifacts'
+
+
+def saved_matchup(page):
+    return page.evaluate('JSON.parse(localStorage.getItem("origin-matchup-calculator-v2"))')
+
+
+def planner_snapshot(page):
+    return page.evaluate('window.originEntombPlanner.getSnapshot()')
+
+
+def selected_dino(page, side):
+    return page.locator(f'#matchupSide{side} select[data-field="dino"]').input_value()
+
+
+def assert_import(page, side, expected, mutations):
+    """Check selected controls, active chips and serialized snapshot—not dropdown option text."""
+    block = f'#matchupSide{side}'
+    actual = saved_matchup(page)[side.lower()]
+    assert page.locator(f'{block} select[data-field="source"]').input_value() == 'lineage'
+    assert selected_dino(page, side) == expected['dino'], f'Side {side} selected dinosaur is wrong'
+    assert page.locator(f'{block} select[data-field="generation"]').input_value() == str(expected['generation']), (
+        f'Side {side} selected generation is wrong'
+    )
+    chips = [s.split(' · ')[0].strip() for s in
+             page.locator(f'{block} .matchup-mutations .chips .pill').all_text_contents()]
+    assert set(chips) == set(mutations), f'Side {side} active mutations {chips} != {mutations}'
+    assert actual['dino'] == expected['dino']
+    assert actual['generation'] == expected['generation']
+    assert actual['lineage'] == expected, f'Side {side} imported an incorrect snapshot'
+
+
+def assert_planner_unchanged(page, expected):
+    assert planner_snapshot(page) == expected, 'Import mutated the visible Entomb Planner'
+    assert page.locator('#entombDino').input_value() == expected['dino']
+    assert page.locator(
+        f'#entombGenerations [data-generation="{expected["generation"]}"]'
+    ).get_attribute('aria-pressed') == 'true'
+
+
+def must_reject(callback, purpose):
+    """Deliberately corrupt one observation and prove the guard catches it."""
+    try:
+        callback()
+    except AssertionError:
+        return
+    raise AssertionError(f'Negative control failed to detect: {purpose}')
+
+
+def assert_no_horizontal_overflow(page, label):
+    widths = page.evaluate("""() => ({
+        doc: document.documentElement.scrollWidth,
+        client: document.documentElement.clientWidth,
+        body: document.body.scrollWidth
+    })""")
+    assert widths['doc'] <= widths['client'] + 1, f'{label} document overflow: {widths}'
+    assert widths['body'] <= widths['client'] + 1, f'{label} body overflow: {widths}'
+
+
+def assert_readable_content(page, selector):
+    width = page.evaluate('document.documentElement.clientWidth')
+    for locator in page.locator(selector).all():
+        if not locator.is_visible():
+            continue
+        rect = locator.bounding_box()
+        if rect:
+            assert rect['x'] >= -1, f'Text starts beyond left viewport: {locator.inner_text()[:40]}'
+            assert rect['x'] + rect['width'] <= width + 1, (
+                f'Text clipped at right viewport: {locator.inner_text()[:40]}'
+            )
+            assert locator.evaluate('(el) => parseFloat(getComputedStyle(el).fontSize)') >= 12
+
+
+def build_lineage(dino, generation, first, third=None):
+    lives = [{'prime': False, 'picks': ['', '', '', '']} for _ in range(5)]
+    lives[0]['picks'][0] = first
+    if third:
+        lives[2]['picks'][0] = third
+    return {'v': 1, 'dino': dino, 'sex': 'Male',
+            'generation': generation, 'contexts': [], 'lives': lives}
+
+
+def lineage_hash(plan):
+    return '#lineage=' + quote(json.dumps(plan), safe='')
+
+
+server = subprocess.Popen(
+    ['python', '-m', 'http.server', '8765', '--bind', '127.0.0.1',
+     '--directory', str(ROOT / 'site')],
+    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+)
 try:
- time.sleep(1)
- with sync_playwright() as playwright:
-  browser=playwright.chromium.launch(headless=True)
-  page=browser.new_page(viewport={'width':1280,'height':850})
-  errors=[];page.on('pageerror',lambda exc:errors.append(str(exc)))
-  page.set_default_timeout(12000)
-  print('Browser started',flush=True)
-  page.goto(base,wait_until='domcontentloaded')
-  page.locator('[data-tab="growth"]').click()
-  assert page.locator('#matchupSideA .matchup-invalid').count()==0
-  print('Initial defaults verified',flush=True)
-  page.locator('#matchupSideA [data-field="prime"]').check()
-  page.locator('#matchupSideA [data-field="source"]').select_option('none')
-  assert page.locator('#matchupSideA [data-field="prime"]').is_checked()
-  page.locator('#matchupSideA [data-field="growth"]').fill('74')
-  assert 'inactive' in page.locator('#matchupSideA').inner_text()
-  page.locator('#matchupSideA [data-field="growth"]').fill('75')
-  assert 'active now' in page.locator('#matchupSideA').inner_text()
-  page.locator('#matchupSideA [data-field="prime"]').uncheck()
-  page.locator('#matchupSideA [data-field="source"]').select_option('standard')
-  page.locator('#matchupSideA [data-customize-standard]').click()
-  assert page.locator('#matchupSideA select[data-slot="4"]').is_disabled()
-  assert page.locator('#matchupSideA [data-clear-retained]').count()==1
-  print('Custom editing reached',flush=True)
-  page.locator('#matchupSideA select[data-slot="3"]').select_option('Accelerated Prey Drive')
-  page.locator('#matchupSideA [data-clear-retained]').click()
-  assert page.locator('#matchupSideA select[data-slot="4"]').input_value()==''
-  page.locator('#matchupSideA [data-field="prime"]').check()
-  page.locator('#matchupSideA [data-field="sex"]').select_option('Female')
-  page.locator('#matchupSideA select[data-slot="2"]').select_option('Parthenogenesis')
-  page.locator('#matchupSideA [data-field="sex"]').select_option('Male')
-  assert page.locator('#matchupSideA select[data-slot="2"]').input_value()=='Parthenogenesis'
-  assert 'EXCLUDED' in page.locator('#matchupSideA select[data-slot="2"] option:checked').inner_text()
-  page.locator('#matchupSideA select[data-slot="2"]').select_option('')
-  state=page.evaluate('JSON.parse(localStorage.getItem("origin-matchup-calculator-v2"))')
-  state['a']['manual'][1]='Restored unknown mutation'
-  page.evaluate('(s)=>localStorage.setItem("origin-matchup-calculator-v2",JSON.stringify(s))',state)
-  print('Invalid retained choice verified',flush=True)
-  page.reload(wait_until='domcontentloaded');page.locator('[data-tab="growth"]').click()
-  assert page.locator('#matchupSideA select[data-slot="2"]').input_value()=='Restored unknown mutation'
-  assert 'EXCLUDED' in page.locator('#matchupSideA select[data-slot="2"] option:checked').inner_text()
-  page.locator('#matchupSideA select[data-slot="2"]').select_option('')
-  assert '50%' in page.locator('#matchupGrowthCurve').inner_text()
-  assert page.locator('#matchupGrowthCurve .matchup-curve-row').count()==9
-  assert page.locator('#matchupResult .matchup-spectrum').inner_text().index('A advantage') < page.locator('#matchupResult .matchup-spectrum').inner_text().index('B advantage')
-  lives=[{'prime':False,'picks':['','','','']} for _ in range(5)];lives[0]['picks'][0]='Hemomania'
-  sample={'v':1,'dino':'Allosaurus','sex':'Male','generation':1.5,'contexts':[],'lives':lives}
-  print('Progression verified',flush=True)
-  page.goto(base+'#lineage='+quote(json.dumps(sample),safe=''),wait_until='domcontentloaded')
-  page.locator('[data-tab="growth"]').click()
-  page.locator('#matchupSideA [data-field="source"]').select_option('lineage')
-  page.locator('#matchupSideA [data-import-planner]').click()
-  assert 'Allosaurus' in page.locator('#matchupSideA').inner_text()
-  sample['dino']='Omniraptor';sample['generation']=3.5
-  page.evaluate('(h)=>location.hash=h','#lineage='+quote(json.dumps(sample),safe=''))
-  page.locator('[data-tab="growth"]').click()
-  page.locator('#matchupSideB [data-field="source"]').select_option('lineage')
-  page.locator('#matchupSideB [data-import-planner]').click()
-  assert 'Allosaurus' in page.locator('#matchupSideA').inner_text()
-  assert 'Omniraptor' in page.locator('#matchupSideB').inner_text()
-  assert 'Life 3' in page.locator('#matchupSideB').inner_text()
-  assert not errors,errors
-  print('Independent lineage imports verified',flush=True)
-  page.set_viewport_size({'width':390,'height':844})
-  page.locator('#siteVersion').click()
-  assert 'Version 1.0.1' in page.locator('body').inner_text()
-  print('Chromium browser smoke: PASS')
-  browser.close()
+    time.sleep(1)
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        page = browser.new_page(viewport={'width': 1280, 'height': 850})
+        page.set_default_timeout(12000)
+        errors = []
+        page.on('pageerror', lambda exc: errors.append(str(exc)))
+        page.goto(BASE, wait_until='domcontentloaded')
+        page.locator('[data-tab="growth"]').click()
+
+        # Preserve v1.0.1 fixes, Prime intent, invalid-value remediation and 50% row.
+        assert page.locator('#matchupSideA .matchup-invalid').count() == 0
+        page.locator('#matchupSideA [data-field="prime"]').check()
+        page.locator('#matchupSideA [data-field="source"]').select_option('none')
+        assert page.locator('#matchupSideA [data-field="prime"]').is_checked()
+        page.locator('#matchupSideA [data-field="growth"]').fill('74')
+        assert 'inactive' in page.locator('#matchupSideA').inner_text()
+        page.locator('#matchupSideA [data-field="growth"]').fill('75')
+        assert 'active now' in page.locator('#matchupSideA').inner_text()
+        page.locator('#matchupSideA [data-field="prime"]').uncheck()
+        page.locator('#matchupSideA [data-field="source"]').select_option('standard')
+        page.locator('#matchupSideA [data-customize-standard]').click()
+        assert page.locator('#matchupSideA select[data-slot="4"]').is_disabled()
+        assert page.locator('#matchupSideA [data-clear-retained]').count() == 1
+        page.locator('#matchupSideA select[data-slot="3"]').select_option('Accelerated Prey Drive')
+        page.locator('#matchupSideA [data-clear-retained]').click()
+        assert page.locator('#matchupSideA select[data-slot="4"]').input_value() == ''
+        page.locator('#matchupSideA [data-field="prime"]').check()
+        page.locator('#matchupSideA [data-field="sex"]').select_option('Female')
+        page.locator('#matchupSideA select[data-slot="2"]').select_option('Parthenogenesis')
+        page.locator('#matchupSideA [data-field="sex"]').select_option('Male')
+        assert page.locator('#matchupSideA select[data-slot="2"]').input_value() == 'Parthenogenesis'
+        assert 'EXCLUDED' in page.locator('#matchupSideA select[data-slot="2"] option:checked').inner_text()
+        page.locator('#matchupSideA select[data-slot="2"]').select_option('')
+        state = saved_matchup(page)
+        state['a']['manual'][1] = 'Restored unknown mutation'
+        page.evaluate('(value) => localStorage.setItem("origin-matchup-calculator-v2", JSON.stringify(value))', state)
+        page.reload(wait_until='domcontentloaded')
+        page.locator('[data-tab="growth"]').click()
+        assert page.locator('#matchupSideA select[data-slot="2"]').input_value() == 'Restored unknown mutation'
+        assert 'EXCLUDED' in page.locator('#matchupSideA select[data-slot="2"] option:checked').inner_text()
+        page.locator('#matchupSideA select[data-slot="2"]').select_option('')
+        assert page.locator('#matchupGrowthCurve .matchup-curve-row').count() == 9
+        assert '50%' in page.locator('#matchupGrowthCurve').inner_text()
+        spectrum = page.locator('#matchupResult .matchup-spectrum').inner_text()
+        assert spectrum.index('A advantage') < spectrum.index('B advantage')
+        print('Baseline controls verified', flush=True)
+
+        # Initial shared link, fractional generation -> Life 1; stale storage cannot win.
+        original_a = build_lineage('Allosaurus', 1.5, 'Hemomania')
+        plan_a = copy.deepcopy(original_a)
+        plan_a['generation'] = 1
+        page.goto(BASE + lineage_hash(original_a), wait_until='domcontentloaded')
+        assert_planner_unchanged(page, plan_a)
+        page.locator('[data-tab="growth"]').click()
+        page.locator('#matchupSideA [data-field="source"]').select_option('lineage')
+        page.locator('#matchupSideA [data-import-planner]').click()
+        assert_import(page, 'A', plan_a, ['Hemomania'])
+        assert_planner_unchanged(page, plan_a)
+        saved_a = copy.deepcopy(saved_matchup(page)['a'])
+
+        # Later hashchange, distinct B lineage, fractional Life 3.
+        original_b = build_lineage('Omniraptor', 3.5, 'Epidermal Fibrosis', 'Cellular Regeneration')
+        plan_b = copy.deepcopy(original_b)
+        plan_b['generation'] = 3
+        page.evaluate('(value) => { location.hash = value; }', lineage_hash(original_b))
+        page.wait_for_function("""() =>
+          window.originEntombPlanner.getSnapshot().dino === 'Omniraptor' &&
+          window.originEntombPlanner.getSnapshot().generation === 3""")
+        assert_planner_unchanged(page, plan_b)
+        page.locator('[data-tab="growth"]').click()
+        page.locator('#matchupSideB [data-field="source"]').select_option('lineage')
+        page.locator('#matchupSideB [data-import-planner]').click()
+        assert_import(page, 'B', plan_b, ['Epidermal Fibrosis', 'Cellular Regeneration'])
+        assert_import(page, 'A', plan_a, ['Hemomania'])
+        assert saved_matchup(page)['a'] == saved_a, 'Import into B overwrote A configuration'
+        assert_planner_unchanged(page, plan_b)
+
+        # Negative controls: each guard must fail on a specifically corrupted state.
+        dino_select = page.locator('#matchupSideB select[data-field="dino"]')
+        dino_select.evaluate("(el) => { el.value = 'Allosaurus'; }")
+        must_reject(lambda: assert_import(page, 'B', plan_b, ['Epidermal Fibrosis', 'Cellular Regeneration']),
+                    'wrong selected dinosaur')
+        dino_select.evaluate("(el) => { el.value = 'Omniraptor'; }")
+
+        gen_select = page.locator('#matchupSideB select[data-field="generation"]')
+        gen_select.evaluate("(el) => { el.value = '2'; }")
+        must_reject(lambda: assert_import(page, 'B', plan_b, ['Epidermal Fibrosis', 'Cellular Regeneration']),
+                    'wrong selected generation')
+        gen_select.evaluate("(el) => { el.value = '3'; }")
+
+        chip = page.locator('#matchupSideB .matchup-mutations .chips .pill').first
+        original_chip = chip.inner_text()
+        chip.evaluate("(el) => { el.textContent = 'Unrelated mutation · Life 3'; }")
+        must_reject(lambda: assert_import(page, 'B', plan_b, ['Epidermal Fibrosis', 'Cellular Regeneration']),
+                    'incorrect imported active mutation')
+        chip.evaluate('(el, text) => { el.textContent = text; }', original_chip)
+
+        broken = saved_matchup(page)
+        broken['a']['lineage']['dino'] = 'Ceratosaurus'
+        page.evaluate('(value) => localStorage.setItem("origin-matchup-calculator-v2", JSON.stringify(value))', broken)
+        must_reject(lambda: assert saved_matchup(page)['a'] == saved_a, 'other side overwritten')
+        page.evaluate('(value) => localStorage.setItem("origin-matchup-calculator-v2", JSON.stringify(value))',
+                      {**broken, 'a': saved_a})
+
+        page.evaluate("""() => document.querySelector('#entombGenerations [data-generation="2"]').click()""")
+        must_reject(lambda: assert_planner_unchanged(page, plan_b), 'planner mutated by import')
+        page.evaluate("""() => document.querySelector('#entombGenerations [data-generation="3"]').click()""")
+        assert_planner_unchanged(page, plan_b)
+        assert_import(page, 'A', plan_a, ['Hemomania'])
+        assert_import(page, 'B', plan_b, ['Epidermal Fibrosis', 'Cellular Regeneration'])
+        print('Independent imports and negative controls verified', flush=True)
+
+        # Narrow viewport, actual controls plus changelog geometry—not just text presence.
+        mobile = browser.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=1)
+        mobile.set_default_timeout(12000)
+        mobile.goto(BASE, wait_until='domcontentloaded')
+        mobile.locator('[data-tab="growth"]').click()
+        mobile.locator('#matchupSideA [data-customize-standard]').click()
+        clear = mobile.locator('#matchupSideA [data-clear-retained]')
+        assert clear.is_visible() and clear.is_enabled()
+        assert_no_horizontal_overflow(mobile, 'Calculator (390px)')
+        ARTIFACTS.mkdir(exist_ok=True)
+        mobile.screenshot(path=str(ARTIFACTS / 'calculator-390.png'), full_page=True)
+        clear.click()
+        assert mobile.locator('#matchupSideA select[data-slot="4"]').input_value() == ''
+        assert_no_horizontal_overflow(mobile, 'Calculator after clear (390px)')
+
+        footer_link = mobile.locator('#siteVersion')
+        assert footer_link.is_visible() and footer_link.is_enabled()
+        footer_link.scroll_into_view_if_needed()
+        assert footer_link.bounding_box() is not None
+        footer_link.click()
+        assert mobile.url.split('?')[0].endswith('/changelog.html')
+        assert mobile.locator('h1').inner_text().strip() == 'Changelog'
+        assert_no_horizontal_overflow(mobile, 'Changelog (390px)')
+        assert_readable_content(mobile, 'main h1, main h2, main p, main li, main a')
+        back = mobile.locator('main a[href="./index.html"]')
+        assert back.is_visible() and back.is_enabled()
+        mobile.screenshot(path=str(ARTIFACTS / 'changelog-390.png'), full_page=True)
+        back.click()
+        assert mobile.url.split('?')[0].endswith('/index.html')
+        assert_no_horizontal_overflow(mobile, 'Calculator return (390px)')
+
+        assert not errors, errors
+        print('Chromium browser smoke and 390px checks: PASS', flush=True)
+        mobile.close()
+        browser.close()
 finally:
- server.terminate();server.wait(timeout=5)
+    server.terminate()
+    server.wait(timeout=5)
