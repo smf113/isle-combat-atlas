@@ -58,3 +58,5 @@
 /* Invalid shared/restored choices stay visible but never contribute to the score. */
 .matchup-invalid{margin-top:.75rem;padding:.7rem .85rem;border:1px solid #b47059;border-radius:.5rem;color:#ffe2d6;background:rgba(180,80,60,.12)}
 .matchup-invalid ul{margin:.35rem 0 0;padding-left:1.3rem}
+
+.matchup-clear{display:block;margin:.45rem 0 .1rem;font-size:.8rem}
