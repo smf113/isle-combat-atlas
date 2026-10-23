@@ -2,6 +2,12 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1321"><title>Changelog | ORIGIN Combat &amp; Build Lab</title><link rel="stylesheet" href="./assets/styles.css"></head>
 <body><main style="max-width:880px;margin:2rem auto;padding:1rem 1.4rem;line-height:1.65"><p><a href="./index.html">← Back to Combat &amp; Build Lab</a></p>
 <h1>Changelog</h1><p>Application releases describe code changes, not new game-balance research. <strong>Gameplay-data snapshot: September 2026.</strong></p>
+<section class="detail-card"><h2>Version 1.0.2 — October 23, 2026</h2><p>Maintenance-only release; no gameplay scoring or data changes.</p><ul>
+<li>Matchup browser checks now verify selected dinosaurs, generations, imported mutation chips and detached A/B lineage snapshots, including initial shared links and later hash changes.</li>
+<li>Tests include deliberate incorrect-state checks to demonstrate that wrong imports, mutation displays, or modified planner state are rejected.</li>
+<li>The footer version and accessible label are checked against the latest changelog heading using the package version, rather than matching old release text.</li>
+<li>Expanded real Chromium checks at a 390px viewport for page overflow, actionable controls, footer navigation and readable changelog content; removed one unused helper.</li>
+</ul><p><strong>Limitations:</strong> automated geometry checks at one narrow viewport are not comprehensive mobile-device testing; gameplay values remain heuristic, and saves synchronize through shareable links rather than a backend.</p></section>
 <section class="detail-card"><h2>Version 1.0.1 — October 23, 2026</h2><p>First documented application release; the previous package value 1.0.0 was not a tagged release.</p><ul>
 <li>Eliminated false fourth-slot warnings on valid non-Prime standard builds.</li>
 <li>Custom builds can clear retained inactive fourth-slot selections without enabling Prime; those selections no longer block earlier-slot choices.</li>
