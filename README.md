@@ -82,3 +82,9 @@ The 1v1 calculator now places **A advantage on the left** and **B advantage on t
 - Node tests (`npm test`) include pure state checks and controller-level DOM/event harnesses. A full interactive Chromium visual check is a separate optional validation step.
 
 See [matchup notes](docs/MATCHUP_NOTES.md) for assumptions and constraints.
+
+## Version and changelog
+
+The first documented application release is **1.0.1 — October 23, 2026**, displayed in the footer and documented in [the changelog](site/changelog.html). The gameplay-data research snapshot remains September 2026; the release is not a game-data refresh. Earlier changes were commits, not numbered releases.
+
+For later releases: update `package.json` version, the footer version in `site/index.html`, and the latest dated entry in `site/changelog.html`. Run `npm test` (includes a version consistency check) and `python tests/browser_smoke.py`, then commit to `main` so GitHub Actions verifies and deploys.

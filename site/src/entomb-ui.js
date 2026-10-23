@@ -1,6 +1,6 @@
 /** Interactive 1–5 generation lineage planner. Baseline single-life score stays unchanged. */
 import {contexts,dinos,mutations,weights,dimNames,dims} from './data.js';
-import {MAX_GENERATION,MAX_MUTATIONS,NON_REPLICATING,UNAVAILABLE,emptyLineage,activeAt,capacityAt,byName,eligible,tierEffect,lineageFit} from './entomb-model.js';
+import {MAX_GENERATION,normalizeGeneration,NON_REPLICATING,emptyLineage,activeAt,capacityAt,byName,eligible,tierEffect,lineageFit} from './entomb-model.js';
 
 const root=document.getElementById('origin-lab-v3');
 const panel=document.getElementById('tab-entomb');
@@ -13,13 +13,14 @@ if(root&&panel){
   // The live, validated planner is authoritative; browser storage is only a persistence cache.
   // Return a detached value so the A/B calculator cannot mutate the visible planner.
   window.originEntombPlanner=Object.freeze({getSnapshot:()=>JSON.parse(JSON.stringify(saved()))});
-  function validPlan(x){return x&&x.v===1&&dinos.some(d=>d.n===x.dino)&&Array.isArray(x.lives)&&x.lives.length===MAX_GENERATION;}
-  function applyPlan(x){if(!validPlan(x))return false;
-    state.dino=x.dino;state.generation=Math.max(1,Math.min(MAX_GENERATION,Number(x.generation)||1));state.sex=x.sex==='Female'?'Female':'Male';
-    state.contexts=(Array.isArray(x.contexts)?x.contexts:[]).filter(c=>Object.hasOwn(contexts,c));
-    state.lives=x.lives.slice(0,MAX_GENERATION).map(l=>({prime:!!l?.prime,picks:Array.from({length:4},(_,i)=>{
-      const v=l?.picks?.[i];return typeof v==='string'&&byName(v)?v:'';
-    })}));
+  function validPlan(x){return x&&x.v===1&&dinos.some(d=>d.n===x.dino)&&Array.isArray(x.lives)&&x.lives.length===MAX_GENERATION&&x.lives.every(l=>l&&Array.isArray(l.picks)&&l.picks.length===4);}
+  function applyPlan(x){
+    if(!validPlan(x))return false;
+    // Prepare normalized values before changing the visible plan.
+    const next={dino:x.dino,generation:normalizeGeneration(x.generation),sex:x.sex==='Female'?'Female':'Male',
+      contexts:(Array.isArray(x.contexts)?x.contexts:[]).filter(c=>Object.hasOwn(contexts,c)),
+      lives:x.lives.map(l=>({prime:!!l.prime,picks:l.picks.map(v=>typeof v==='string'&&byName(v)?v:'')}))};
+    Object.assign(state,next);
     return true;
   }
   function persist(){try{localStorage.setItem(storageKey,JSON.stringify(saved()));}catch{}}

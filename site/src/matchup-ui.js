@@ -1,7 +1,7 @@
 /** Independent 1v1 calculator: shareable A/B builds with Entomb lineage imports. */
 import {dinos,mutations,presets} from './data.js';
-import {eligible,tierEffect,byName,MAX_GENERATION} from './entomb-model.js';
-import {DEFAULT_SIDE,SCENARIO_DEFAULT,calculateMatchup,compareAcrossGrowth,extractLineageLink,validLineage,SLOT_GROWTH,standardPicks,advantagePosition} from './matchup-model.js';
+import {eligible,tierEffect,MAX_GENERATION,normalizeGeneration} from './entomb-model.js';
+import {DEFAULT_SIDE,SCENARIO_DEFAULT,calculateMatchup,compareAcrossGrowth,extractLineageLink,normalizeLineage,validLineage,SLOT_GROWTH,standardPicks,advantagePosition} from './matchup-model.js';
 
 const root=document.getElementById('origin-lab-v3'),panel=root?.querySelector('#tab-growth');
 if(root&&panel){
@@ -13,8 +13,8 @@ if(root&&panel){
   const planCopy=x=>JSON.parse(JSON.stringify(x));
   const sanitizeSide=x=>{
     const dino=dinos.some(d=>d.n===x?.dino)?x.dino:'Allosaurus';
-    const side={...DEFAULT_SIDE(dino),source:['none','standard','manual','lineage'].includes(x?.source)?x.source:'standard',sex:x?.sex==='Female'?'Female':'Male',growth:Math.max(25,Math.min(100,Math.round(Number(x?.growth)||100))),prime:!!x?.prime,manual:Array.from({length:4},(_,i)=>typeof x?.manual?.[i]==='string'?x.manual[i].slice(0,128):''),generation:Math.max(1,Math.min(MAX_GENERATION,Math.trunc(Number(x?.generation)||1)))};
-    if(validLineage(x?.lineage)&&x.lineage.dino===side.dino)side.lineage=planCopy(x.lineage);
+    const side={...DEFAULT_SIDE(dino),source:['none','standard','manual','lineage'].includes(x?.source)?x.source:'standard',sex:x?.sex==='Female'?'Female':'Male',growth:Math.max(25,Math.min(100,Math.round(Number(x?.growth)||100))),prime:!!x?.prime,manual:Array.from({length:4},(_,i)=>typeof x?.manual?.[i]==='string'?x.manual[i].slice(0,128):''),generation:normalizeGeneration(x?.generation)};
+    if(validLineage(x?.lineage)&&x.lineage.dino===side.dino)side.lineage=normalizeLineage(x.lineage);
     if(side.source==='lineage'&&!side.lineage)side.source='none';
     return side;
   };
@@ -51,9 +51,15 @@ if(root&&panel){
     const prime=s.source==='lineage'?size:s.prime;
     const standard=s.source==='standard'?standardPicks(s.dino,s.sex):null;
     const substituted=standard?.some((n,i)=>n!==presets[result.d.arch]?.[i]);
-    const pool=(slot,selected)=>mutations.filter(m=>eligible(m,result.d,s.sex,slot) &&
-      (m.n===selected || !s.manual.some((n,i)=>i!==slot-1&&n===m.n)))
-      .sort((a,b)=>a.n.localeCompare(b.n)).map(m=>`<option value="${esc(m.n)}" ${m.n===selected?'selected':''}>${esc(m.n)}</option>`).join('');
+    const pool=(slot,selected)=>{
+      const invalid=result.invalidSelections.find(row=>row.slot===slot);
+      const retained=invalid&&selected?`<option value="${esc(selected)}" selected>${esc(selected)} — EXCLUDED: ${esc(invalid.reason)}</option>`:'';
+      const options=mutations.filter(m=>eligible(m,result.d,s.sex,slot) &&
+        (m.n===selected || !s.manual.some((n,i)=>i!==slot-1&&n===m.n&&(i!==3||prime))))
+        .sort((a,b)=>a.n.localeCompare(b.n)).filter(m=>!(invalid&&m.n===selected))
+        .map(m=>`<option value="${esc(m.n)}" ${m.n===selected?'selected':''}>${esc(m.n)}</option>`).join('');
+      return retained+options;
+    };
     return `<article class="detail-card matchup-side" aria-label="${name} dinosaur configuration">
       <div class="matchup-side-heading"><span class="matchup-side-letter">${name}</span><strong>${esc(result.d.n)}</strong></div>
       <div class="matchup-fields">
@@ -64,7 +70,7 @@ if(root&&panel){
       </div>
       ${s.source!=='lineage'?`<label class="matchup-check"><input type="checkbox" data-side="${key}" data-field="prime" ${prime?'checked':''}> Prime intended (4th slot becomes active at 75% growth)</label>`:''}
       ${s.source==='standard'?`<div class="matchup-standard"><div class="matchup-standard-heading"><strong>${esc(result.d.arch)} role preset</strong><button type="button" class="action-btn secondary" data-customize-standard="${key}">Customize build</button></div><p class="muted">Suggested choices, not automatically granted in-game. Unlock and growth requirements still apply.${substituted?' Ineligible or unavailable atlas picks were replaced with eligible alternatives.':''}</p><div class="matchup-standard-picks">${standard.slice(0,prime?4:3).map((n,i)=>`<span class="pill">S${i+1}: ${esc(n)}</span>`).join('')}</div></div>`:''}
-      ${s.source==='manual'?`<div class="matchup-manual">${[1,2,3,4].map(slot=>`<label><span class="field-label">Mutation ${slot}${slot===4?' · Prime':''} · ~${SLOT_GROWTH[slot-1]}% growth</span><select class="control w-full" data-side="${key}" data-field="manual" data-slot="${slot}" ${slot===4&&!prime?'disabled':''}><option value="">— Empty —</option>${pool(slot,s.manual[slot-1])}</select></label>`).join('')}</div>`:''}
+      ${s.source==='manual'?`<div class="matchup-manual">${[1,2,3,4].map(slot=>`<label><span class="field-label">Mutation ${slot}${slot===4?' · Prime':''} · ~${SLOT_GROWTH[slot-1]}% growth</span><select class="control w-full" data-side="${key}" data-field="manual" data-slot="${slot}" ${slot===4&&!prime?'disabled':''}><option value="">— Empty —</option>${pool(slot,s.manual[slot-1])}</select>${slot===4&&!prime&&s.manual[3]?`<button type="button" class="action-btn secondary matchup-clear" data-clear-retained="${key}" data-slot="4">Clear inactive fourth-slot choice: ${esc(s.manual[3])}</button>`:''}</label>`).join('')}</div>`:''}
       ${s.source==='lineage'?`<div class="matchup-lineage-tools"><button type="button" class="action-btn secondary" data-import-planner="${key}">Import current Entomb Planner</button><label><span class="field-label">Or paste a copied lineage URL</span><input class="control w-full" data-paste-link="${key}" placeholder="Paste #lineage=... or shared website URL"></label><button type="button" class="action-btn secondary" data-import-link="${key}">Load pasted lineage</button></div>${plan?`<div class="matchup-lineage-meta"><span class="pill">Life ${s.generation}</span><span class="pill">${prime?'Prime life':'Normal life'}</span><span class="pill">${result.active.length} active now</span></div><label><span class="field-label">Entomb generation</span><select class="control w-full" data-side="${key}" data-field="generation">${Array.from({length:MAX_GENERATION},(_,i)=>`<option value="${i+1}" ${s.generation===i+1?'selected':''}>Life ${i+1}${i?' · '+i+' Entomb'+(i>1?'s':''):''}</option>`).join('')}</select></label>`:'<p class="muted">Import a lineage to activate inherited effects.</p>'}`:''}
       <div class="matchup-mutations"><div class="section-title">Active in this matchup</div><div class="chips mt-2">${result.active.map(x=>{const tier=tierEffect(x.name,result.generation);return `<span class="pill">${esc(x.name)}${tier?' · '+esc(tier.label):''}${x.inherited?' · inherited':''}</span>`}).join('')||'<span class="muted">No active mutations</span>'}</div>${result.pending.length?`<p class="muted mt-2">Not unlocked at ${result.growth}%: ${result.pending.map(x=>esc(x.name)).join(', ')}.</p>`:''}${result.sourceWarning?`<p class="muted">${esc(result.sourceWarning)}</p>`:''}${result.invalidSelections.length?`<div class="matchup-invalid" role="alert"><strong>Excluded selections (not counted):</strong><ul>${result.invalidSelections.map(x=>`<li>${esc(x.name)}${x.life?' (Life '+x.life+', slot '+x.slot+')':' (slot '+x.slot+')'}: ${esc(x.reason)}</li>`).join('')}</ul></div>`:''}${s.source!=='lineage'?`<p class="muted">Prime ${prime?'intended':'not selected'}; ${result.primeActive?'active now':'inactive at this growth'}. ${prime&&!result.primeActive?'Prime bonus and current-life fourth slot activate at 75% growth.':''}</p>`:prime&&!result.primeActive?'<p class="muted">Lineage Prime intended for this life; its bonus and newly earned fourth slot are inactive below 75%. Previously inherited slots remain usable.</p>':''}</div>
     </article>`;
@@ -94,7 +100,7 @@ if(root&&panel){
   function persistRender(){save();render()}
   function importPlan(key,p){
     if(!validLineage(p)){info='That lineage is invalid. Open the Entomb Planner and save a lineage first.';render();return;}
-    state[key]={...state[key],dino:p.dino,sex:p.sex==='Female'?'Female':'Male',source:'lineage',lineage:planCopy(p),generation:Math.max(1,Math.min(MAX_GENERATION,Number(p.generation)||1))};
+    state[key]={...state[key],dino:p.dino,sex:p.sex==='Female'?'Female':'Male',source:'lineage',lineage:normalizeLineage(p),generation:normalizeGeneration(p.generation)};
     info=`Imported ${p.dino} Life ${state[key].generation} into side ${key.toUpperCase()}.`;persistRender();
   }
   panel.addEventListener('change',e=>{
@@ -118,6 +124,12 @@ if(root&&panel){
         if(!snapshot)throw new Error('The live Entomb Planner is unavailable.');
         importPlan(p.dataset.importPlanner,snapshot);
       }catch{info='Could not read the current Entomb Planner. Open the planner and configure a lineage first.';render()}return;
+    }
+    const clear=e.target.closest('[data-clear-retained]');if(clear){
+      const key=clear.dataset.clearRetained,slot=Number(clear.dataset.slot);
+      if(['a','b'].includes(key)&&state[key].source==='manual'&&slot>=1&&slot<=4){
+        state[key].manual[slot-1]='';info='Retained choice cleared from slot '+slot+'.';persistRender();
+      }return;
     }
     const customize=e.target.closest('[data-customize-standard]');if(customize){
       const key=customize.dataset.customizeStandard,s=state[key];

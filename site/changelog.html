@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1321"><title>Changelog | ORIGIN Combat &amp; Build Lab</title><link rel="stylesheet" href="./assets/styles.css"></head>
+<body><main style="max-width:880px;margin:2rem auto;padding:1rem 1.4rem;line-height:1.65"><p><a href="./index.html">← Back to Combat &amp; Build Lab</a></p>
+<h1>Changelog</h1><p>Application releases describe code changes, not new game-balance research. <strong>Gameplay-data snapshot: September 2026.</strong></p>
+<section class="detail-card"><h2>Version 1.0.1 — October 23, 2026</h2><p>First documented application release; the previous package value 1.0.0 was not a tagged release.</p><ul>
+<li>Eliminated false fourth-slot warnings on valid non-Prime standard builds.</li>
+<li>Custom builds can clear retained inactive fourth-slot selections without enabling Prime; those selections no longer block earlier-slot choices.</li>
+<li>Unknown, duplicate, or ineligible restored mutations appear in their actual dropdowns as excluded and can be cleared or replaced.</li>
+<li>Malformed or missing lineage generation values normalize consistently during planner restoration and matchup import, while invalid structures are rejected without partial state changes.</li>
+<li>Added automated coverage and browser regression checks, plus this release history.</li></ul>
+<p><strong>Known limitations:</strong> combat scoring remains a community strategy heuristic, not a win probability; growth unlock thresholds are approximate; local saved configurations do not automatically sync between devices (share links are supported).</p></section>
+<section class="detail-card" style="margin-top:1rem"><h2>Verified changes before numbered releases</h2><p>These are source-control milestones, not retrospectively numbered releases.</p><ul>
+<li><a href="https://github.com/smf113/isle-combat-atlas/commit/295567bdf934b049b5e5480cda614b9db5e6dd7d">295567b</a> — UI-state regression coverage including Prime, imports and migration.</li>
+<li><a href="https://github.com/smf113/isle-combat-atlas/commit/a09bf3e9edd6023106542a2737409a623ebcaed6">a09bf3e</a> — Prime source switching, current Entomb state imports, invalid selection feedback and 50% growth row.</li>
+<li><a href="https://github.com/smf113/isle-combat-atlas/commit/adae32a811d360b1512c3c1791bb990ab1e971b1">adae32a</a> — standard builds and A-left/B-right direction.</li>
+<li><a href="https://github.com/smf113/isle-combat-atlas/commit/b8f79039d29a4713cf4aff01fc93c8ee3d140bb3">b8f7903</a> — side-by-side matchup calculator.</li>
+</ul></section></main></body></html>
