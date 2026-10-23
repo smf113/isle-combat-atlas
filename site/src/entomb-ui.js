@@ -10,6 +10,9 @@ if(root&&panel){
   const state={generation:1,sex:'Male',lives:emptyLineage(),contexts:[],dino:'Allosaurus'};
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const saved=()=>({v:1,dino:state.dino,generation:state.generation,sex:state.sex,lives:state.lives.map(l=>({prime:Boolean(l.prime),picks:[...l.picks]})),contexts:[...state.contexts]});
+  // The live, validated planner is authoritative; browser storage is only a persistence cache.
+  // Return a detached value so the A/B calculator cannot mutate the visible planner.
+  window.originEntombPlanner=Object.freeze({getSnapshot:()=>JSON.parse(JSON.stringify(saved()))});
   function validPlan(x){return x&&x.v===1&&dinos.some(d=>d.n===x.dino)&&Array.isArray(x.lives)&&x.lives.length===MAX_GENERATION;}
   function applyPlan(x){if(!validPlan(x))return false;
     state.dino=x.dino;state.generation=Math.max(1,Math.min(MAX_GENERATION,Number(x.generation)||1));state.sex=x.sex==='Female'?'Female':'Male';

@@ -28,3 +28,9 @@
 - [The Isle mutation guide](https://www.theisle.info/guide/mutations) — mutation conditions and values (May 2026).
 
 **Interpretation safeguard:** New rankings should not be presented as authoritative combat outcomes. We deliberately do not use Entomb role-fit scores as combat multipliers, and do not grant every mutation an arbitrary damage/health boost.
+### Focused October 2026 state corrections
+
+- The Prime checkbox remains visible in **all non-lineage sources**, including unmutated baseline. Prime is only *active* at or above 75% growth, but remains selected while changing mutation sources. An Entomb life uses that life's own Prime flag.
+- "Import current Entomb Planner" copies a detached snapshot from the in-memory planner state, including restored initial `#lineage=` URLs and subsequent hash changes. It does **not** trust a potentially stale local-storage cache and does not modify the planner or the other matchup side.
+- Editing custom mutations excludes already selected names from other dropdowns. Invalid shared or previously saved selections remain visible by name in a warning and do **not** count towards scoring. The model continues to validate duplicates and eligibility independently of the interface.
+- The A-versus-fixed-B growth progression adds **50%** alongside all existing rows, displaying the approximate second-slot unlock. No score calibration was changed.

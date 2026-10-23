@@ -81,7 +81,7 @@ test('lineage imports reject wrong dinosaur and malformed URL; roundtrip importe
 });
 test('growth ladder consistently evaluates relative to a fixed opponent',()=>{
  const rows=compareAcrossGrowth(side('Allosaurus',{prime:true}),side('Ceratosaurus'));
- assert.deepEqual(rows.map(r=>r.growth),[25,35,45,55,65,75,87,100]);
+ assert.deepEqual(rows.map(r=>r.growth),[25,35,45,50,55,65,75,87,100]);
  assert.equal(rows[0].a.primeActive,false);
  assert.equal(rows.at(-1).a.primeActive,true);
  assert.ok(rows.at(-1).adjusted>rows[0].adjusted);
@@ -124,4 +124,58 @@ test('advantage spectrum matches A on left and B on right; marker reverses with 
   assert.ok(ab.adjusted>1);
   assert.ok(advantagePosition(ab.adjusted)<50);
   assert.ok(advantagePosition(ba.adjusted)>50);
+});
+
+test('unmutated Prime intent persists and activates precisely at 75%, independently of mutations',()=>{
+ const s=side('Allosaurus',{source:'none',prime:true});
+ for(const growth of [25,74]){const r=resolveSide({...s,growth});assert.equal(r.earnedPrime,true);assert.equal(r.primeActive,false);assert.equal(r.maturity,maturity(growth,false));assert.equal(r.active.length,0);}
+ for(const growth of [75,87,100]){const r=resolveSide({...s,growth});assert.equal(r.primeActive,true);assert.equal(r.maturity,maturity(growth,true));}
+ assert.equal(resolveSide({...s,growth:87}).maturity,1.08);
+ assert.equal(resolveSide({...s,growth:100,prime:false}).maturity,1);
+});
+test('invalid custom selections are excluded with explicit, inspectable reasons',()=>{
+ const d=resolveSide(side('Allosaurus',{source:'manual',prime:false,manual:['Hemomania','Hemomania','Unknown Mutation','Cellular Regeneration']}));
+ assert.deepEqual(d.active.map(r=>r.name),['Hemomania']);
+ assert.deepEqual(d.invalidSelections.map(r=>r.reason),['duplicate mutation','unknown mutation','requires Prime in the current life']);
+ const c=resolveSide(side('Ceratosaurus',{source:'manual',manual:['Cannibalistic','','','']}));
+ assert.match(c.invalidSelections[0].reason,/not eligible/);
+});
+test('inherited fourth slot remains active for juvenile descendants without current-life Prime',()=>{
+ const plan=entomb('Allosaurus',2);plan.lives[0].prime=true;plan.lives[0].picks[3]='Cellular Regeneration';plan.lives[1].prime=false;
+ const kid=resolveSide(side('Allosaurus',{source:'lineage',lineage:plan,generation:2,growth:25}));
+ assert.equal(kid.earnedPrime,false);assert.equal(kid.primeActive,false);
+ assert.ok(kid.active.some(p=>p.name==='Cellular Regeneration'&&p.inherited&&p.slot===4));
+});
+test('swapping combatants and injuries yields reciprocal unclamped ratios and mirrored markers',()=>{
+ const a=side('Allosaurus',{source:'manual',manual:['Hemomania','','','']});
+ const b=side('Ceratosaurus',{source:'manual',manual:['Hemomania','','','']});
+ const ab=calculateMatchup(a,b,{aBleeding:true,bBleeding:false,aLowHealth:true,bLowHealth:false});
+ const ba=calculateMatchup(b,a,{aBleeding:false,bBleeding:true,aLowHealth:false,bLowHealth:true});
+ assert.ok(Math.abs(ab.adjusted*ba.adjusted-1)<1e-12);
+ assert.ok(Math.abs(ab.baseline*ba.baseline-1)<1e-12);
+ assert.ok(Math.abs(advantagePosition(ab.adjusted)+advantagePosition(ba.adjusted)-100)<1e-10);
+ for(const row of compareAcrossGrowth(a,b,{},[25,50,75,87]))assert.equal(row.b.growth,b.growth);
+});
+test('Prime source switching retains selections without activating fourth slot early',()=>{
+ const manual=['Hemomania','Efficient Digestion','Epidermal Fibrosis','Cellular Regeneration'];
+ for(const source of ['manual','none','standard','manual']){
+  const r=resolveSide(side('Allosaurus',{source,manual,prime:true,growth:74}));
+  assert.equal(r.earnedPrime,true);assert.equal(r.primeActive,false);
+  assert.equal(r.maturity,maturity(74,false));assert.ok(!r.active.some(row=>row.slot===4));
+ }
+ assert.ok(resolveSide(side('Allosaurus',{source:'manual',manual,prime:true,growth:75})).active.some(row=>row.slot===4));
+});
+test('lineage Prime comes from selected life, not standalone side flag',()=>{
+ const p=entomb('Allosaurus',2);p.lives[0].prime=true;p.lives[1].prime=false;
+ const r=resolveSide(side('Allosaurus',{source:'lineage',lineage:p,prime:true,generation:2,growth:100}));
+ assert.equal(r.earnedPrime,false);assert.equal(r.primeActive,false);assert.equal(r.maturity,1);
+ const parent=resolveSide(side('Allosaurus',{source:'lineage',lineage:p,prime:false,generation:1,growth:100}));
+ assert.equal(parent.earnedPrime,true);assert.equal(parent.primeActive,true);
+});
+test('50% growth retains previous rows and second slot transition',()=>{
+ const a=side('Allosaurus',{source:'standard'}),b=side('Ceratosaurus');
+ assert.deepEqual(compareAcrossGrowth(a,b).map(x=>x.growth),[25,35,45,50,55,65,75,87,100]);
+ const young=resolveSide({...a,growth:49}),unlocked=resolveSide({...a,growth:50});
+ assert.equal(young.active.length,1);assert.equal(unlocked.active.length,2);
+ assert.equal(young.pending.length,2);assert.equal(unlocked.pending.length,1);
 });

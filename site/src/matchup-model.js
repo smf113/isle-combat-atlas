@@ -71,22 +71,35 @@ export function resolveSide(s){
   const life=lineage?lineage.lives[generation-1]:null;
   const earnedPrime=lineage?Boolean(life.prime):Boolean(s?.prime);
   const primeActive=earnedPrime&&growth>=75;
-  const pending=[], active=[],used=new Set();
+  const pending=[], active=[],invalidSelections=[],used=new Set();
   let sourceWarning='';
   if(source==='lineage'&&!lineage)sourceWarning='No matching lineage imported; treated as unmutated.';
   if(source==='manual'||source==='standard'){
     const picks=source==='standard'?standardPicks(d.n,sex):Array.isArray(s?.manual)?s.manual:[];
     picks.slice(0,4).forEach((name,i)=>{
       const slot=i+1,m=byName(name);
-      if(!m||used.has(name)||!eligible(m,d,sex,slot)||slot===4&&!earnedPrime)return;
+      if(!name)return;
+      const why=!m?'unknown mutation':used.has(name)?'duplicate mutation':!eligible(m,d,sex,slot)?'not eligible for this dinosaur, sex or slot':slot===4&&!earnedPrime?'requires Prime in the current life':'';
+      if(why){invalidSelections.push({name,slot,reason:why});return;}
       used.add(name);
       const row={name,slot,life:1,inherited:false,tier:1};
       if(growth<SLOT_GROWTH[i]||(slot===4&&!primeActive))pending.push(row);else active.push(row);
     });
   }
   if(lineage){
-    const a=activeAt(lineage.lives,generation).active;
-    for(const row of a){
+    const observed=activeAt(lineage.lives,generation);
+    for(const row of observed.duplicates)invalidSelections.push({name:row.name,slot:row.slot,life:row.life,reason:'duplicate mutation in lineage'});
+    // Flag invalid retained or current picks without claiming they contribute to the fight.
+    for(let life=Math.max(1,generation-3);life<=generation;life++){
+      const entry=lineage.lives[life-1];
+      entry.picks.forEach((name,i)=>{
+        if(!name)return;
+        if(i===3&&!entry.prime){invalidSelections.push({name,slot:4,life,reason:'requires Prime in that life'});return;}
+        const mutation=byName(name);
+        if(!mutation || !eligible(mutation,d,sex,i+1))invalidSelections.push({name,slot:i+1,life,reason:!mutation?'unknown mutation':'not eligible for this dinosaur, sex or slot'});
+      });
+    }
+    for(const row of observed.active){
       // Already-earned inherited mutations are available in the new juvenile; new slots grow in this life.
       const m=byName(row.name);
       if(!m||used.has(row.name)||!eligible(m,d,sex,row.slot))continue;
@@ -96,7 +109,7 @@ export function resolveSide(s){
       else active.push(decorated);
     }
   }
-  return {d,growth,source,sex,generation,earnedPrime,primeActive,active,pending,sourceWarning,
+  return {d,growth,source,sex,generation,earnedPrime,primeActive,active,pending,invalidSelections,sourceWarning,
     basePower:adultPower(d)*maturity(growth,primeActive),maturity:maturity(growth,primeActive)};
 }
 const has=(p,n)=>p.active.some(m=>m.name===n);
@@ -150,6 +163,6 @@ export function calculateMatchup(aInput,bInput,scenarioInput={}){
     shift:Math.abs(Math.log(index)-Math.log(baseline))>.025,
     notes:['Derived from the original atlas adult-power and maturity heuristics, not live damage, HP or skill measurements.','Only conditional quantified damage and damage-reduction mutations affect the ratio. Bleed, fracture, recovery, movement and utility effects are shown separately rather than guessed into generic combat power.','Species mass comparison uses the reference adult weights; actual weight at growth may differ.','Mutation slot unlock growth thresholds (25/50/75/75%) are approximate; inherited Entomb mutations are modeled active from juvenile.']};
 }
-export function compareAcrossGrowth(a,b,scenario,values=[25,35,45,55,65,75,87,100]){
+export function compareAcrossGrowth(a,b,scenario,values=[25,35,45,50,55,65,75,87,100]){
   return values.map(g=>({growth:g,...calculateMatchup({...a,growth:g},b,scenario)}));
 }

@@ -55,3 +55,6 @@
 #tab-growth .matchup-legacy>.grid{margin-top:13px}
 @media(max-width:850px){#tab-growth .matchup-grid{grid-template-columns:1fr}#tab-growth .matchup-conditions{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){#tab-growth .matchup-fields,#tab-growth .matchup-manual,#tab-growth .matchup-effect-grid{grid-template-columns:1fr}#tab-growth .matchup-verdict{display:block}#tab-growth .matchup-verdict-metrics{max-width:none;justify-content:flex-start;margin-top:9px}#tab-growth .matchup-curve-row{grid-template-columns:38px minmax(40px,1fr) 50px;gap:7px}#tab-growth .matchup-curve-row .muted{display:none}#tab-growth .matchup-spectrum{gap:5px}#tab-growth .matchup-spectrum>span{max-width:60px}}
+/* Invalid shared/restored choices stay visible but never contribute to the score. */
+.matchup-invalid{margin-top:.75rem;padding:.7rem .85rem;border:1px solid #b47059;border-radius:.5rem;color:#ffe2d6;background:rgba(180,80,60,.12)}
+.matchup-invalid ul{margin:.35rem 0 0;padding-left:1.3rem}

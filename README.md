@@ -72,3 +72,13 @@ A growth projection shows how Side A changes against the currently configured Si
 ### Matchup calculator defaults (October 2026)
 
 The 1v1 calculator now places **A advantage on the left** and **B advantage on the right** in the result spectrum and growth ladder. Both dinosaurs start with a role-specific, legal 3-slot **recommended standard mutation build**, with Prime enabling a fourth suggested slot; use **Customize build** to edit each side independently. Unmutated and separate Entomb lineage sources remain available. The score is still a heuristic, not a win-rate prediction. See [matchup notes](docs/MATCHUP_NOTES.md).
+
+### Matchup UI/state remediation (October 2026)
+
+- Non-lineage Prime remains visible across standard, custom and unmutated sources. **Intended** Prime is distinct from **active** Prime: the growth bonus and new fourth slot do not apply below **75%**; the selection is retained while switching sources. Lineage Prime is taken from the selected life.
+- A/B import buttons copy the currently displayed Entomb Planner snapshot, including changes from a shared `#lineage=` URL or subsequent hash changes. Import never edits the planner or the other contestant.
+- Custom dropdowns prevent duplicate selections, while restored invalid/duplicate mutation slots are plainly identified and omitted from the model. No auto-correction is made to a user's saved selections without notice.
+- The A-growth-vs-fixed-B progression adds a **50%** row without removing existing steps; the original A-left/B-right markers and relative-pressure formula remain unchanged.
+- Node tests (`npm test`) include pure state checks and controller-level DOM/event harnesses. A full interactive Chromium visual check is a separate optional validation step.
+
+See [matchup notes](docs/MATCHUP_NOTES.md) for assumptions and constraints.
