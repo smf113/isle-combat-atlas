@@ -2,7 +2,7 @@
  * Reuses the original growth curve and only models quantified direct combat mutation effects.
  */
 import {dinos,mutations,presets,weights,dims} from './data.js';
-import {activeAt,byName,eligible,tierEffect,MAX_GENERATION} from './entomb-model.js';
+import {activeAt,byName,eligible,tierEffect,MAX_GENERATION,normalizeGeneration} from './entomb-model.js';
 
 export const MIN_GROWTH=25;
 export const SLOT_GROWTH=[25,50,75,75]; // approximate unlock stages, not exact patch-verified percentages
@@ -49,6 +49,8 @@ export const maturity=(g,usePrime)=>{
 };
 export const adultPower=d=>16+Math.log2(d.kg+20)*8+d.threat*11+d.solo*2;
 export const validLineage=x=>Boolean(x&&x.v===1&&findDino(x.dino)&&Array.isArray(x.lives)&&x.lives.length===MAX_GENERATION&&x.lives.every(l=>l&&Array.isArray(l.picks)&&l.picks.length===4));
+/** Keep the share format but normalize generation at the input boundary. */
+export const normalizeLineage=x=>validLineage(x)?{...JSON.parse(JSON.stringify(x)),generation:normalizeGeneration(x.generation)}:null;
 export function extractLineageLink(input){
   const text=String(input||'').trim();
   let payload=text;
@@ -59,7 +61,7 @@ export function extractLineageLink(input){
   try{
     const x=JSON.parse(decodeURIComponent(payload));
     if(!validLineage(x))throw new Error('Unrecognized lineage data.');
-    return JSON.parse(JSON.stringify(x));
+    return normalizeLineage(x);
   }catch(e){throw new Error('Could not read a valid Entomb Planner link or snapshot.');}
 }
 export function resolveSide(s){
@@ -67,7 +69,7 @@ export function resolveSide(s){
   const growth=clamp(s?.growth,MIN_GROWTH,100),source=['none','standard','manual','lineage'].includes(s?.source)?s.source:'none';
   const sex=s?.sex==='Female'?'Female':'Male';
   const lineage=source==='lineage'&&validLineage(s?.lineage)&&s.lineage.dino===d.n?s.lineage:null;
-  const generation=lineage?clamp(Math.trunc(s?.generation),1,MAX_GENERATION):1;
+  const generation=lineage?normalizeGeneration(s?.generation):1;
   const life=lineage?lineage.lives[generation-1]:null;
   const earnedPrime=lineage?Boolean(life.prime):Boolean(s?.prime);
   const primeActive=earnedPrime&&growth>=75;
@@ -75,7 +77,8 @@ export function resolveSide(s){
   let sourceWarning='';
   if(source==='lineage'&&!lineage)sourceWarning='No matching lineage imported; treated as unmutated.';
   if(source==='manual'||source==='standard'){
-    const picks=source==='standard'?standardPicks(d.n,sex):Array.isArray(s?.manual)?s.manual:[];
+    // Slot four is an optional future recommendation, not an actual selected mutation without Prime.
+    const picks=source==='standard'?standardPicks(d.n,sex).slice(0,earnedPrime?4:3):Array.isArray(s?.manual)?s.manual:[];
     picks.slice(0,4).forEach((name,i)=>{
       const slot=i+1,m=byName(name);
       if(!name)return;
