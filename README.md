@@ -85,6 +85,10 @@ See [matchup notes](docs/MATCHUP_NOTES.md) for assumptions and constraints.
 
 ## Version and changelog
 
-The current maintenance release is **1.0.2 — October 23, 2026**; version 1.0.1 was the first documented release. The footer links to [the changelog](site/changelog.html). The gameplay-data research snapshot remains September 2026; the release is not a game-data refresh. Earlier changes were commits, not numbered releases.
+The current maintenance release is **1.0.3 — October 25, 2026**; version 1.0.1 was the first documented release. The footer links to [the changelog](site/changelog.html). The gameplay-data research snapshot remains September 2026; the release is not a game-data refresh. Earlier changes were commits, not numbered releases.
 
 For later releases: update `package.json` version, the footer version in `site/index.html`, and the latest dated entry in `site/changelog.html`. Run `npm test` (reads version dynamically from package.json) and `python tests/browser_smoke.py` (real Playwright Chromium checks with deliberate negative controls), then open a PR and merge only when GitHub Actions passes. Browser screenshots are uploaded as CI artifacts for inspection. The browser smoke only checks 390px narrow-screen geometry, not every mobile device.
+
+### Fight-condition behavior (October 25, 2026)
+
+Fight circumstance checkboxes do not impose generic injury penalties on the ratio. Instead, **B bleeding** triggers A's active Hemomania and **A bleeding** triggers B's; **B below 35% health** triggers A's active Accelerated Prey Drive and **A below 35% health** triggers B's. When the relevant mutation is absent or not active, the checkbox is stored but the relative pressure index remains unchanged. The calculator displays an explanation for each selected condition; new Node and real Chromium tests check this. This is a UI clarity and validation release, not a gameplay-data or formula update.
