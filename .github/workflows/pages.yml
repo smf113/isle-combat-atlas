@@ -10,7 +10,7 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: pages
+  group: pages-${{ github.event_name }} # TEMPORARY: prevent PR verification cancelling live-review push deployment
   cancel-in-progress: true
 jobs:
   verify:
