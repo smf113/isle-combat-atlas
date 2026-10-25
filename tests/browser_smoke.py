@@ -5,6 +5,7 @@ Prerequisites: pip install playwright && playwright install chromium
 """
 import copy
 import json
+import re
 import subprocess
 import time
 from pathlib import Path
@@ -41,7 +42,7 @@ def assert_import(page, side, expected, mutations):
     assert page.locator(f'{block} select[data-field="generation"]').input_value() == str(expected['generation']), (
         f'Side {side} selected generation is wrong'
     )
-    chips = [s.split(' · ')[0].strip() for s in
+    chips = [re.split(r'\s*·\s*', s, maxsplit=1)[0].strip() for s in
              page.locator(f'{block} .matchup-mutations .chips .pill').all_text_contents()]
     assert set(chips) == set(mutations), f'Side {side} active mutations {chips} != {mutations}'
     assert actual['dino'] == expected['dino']
