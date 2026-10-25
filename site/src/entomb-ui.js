@@ -1,5 +1,5 @@
 /** Interactive 1–5 generation lineage planner. Baseline single-life score stays unchanged. */
-import {contexts,dinos,mutations,weights,dimNames,dims} from './data.js';
+import {contexts,dinos,mutations,weights,dimNames,dims,availabilityReason} from './data.js';
 import {MAX_GENERATION,normalizeGeneration,NON_REPLICATING,emptyLineage,activeAt,capacityAt,byName,eligible,tierEffect,lineageFit} from './entomb-model.js';
 
 const root=document.getElementById('origin-lab-v3');
@@ -19,7 +19,7 @@ if(root&&panel){
     // Prepare normalized values before changing the visible plan.
     const next={dino:x.dino,generation:normalizeGeneration(x.generation),sex:x.sex==='Female'?'Female':'Male',
       contexts:(Array.isArray(x.contexts)?x.contexts:[]).filter(c=>Object.hasOwn(contexts,c)),
-      lives:x.lives.map(l=>({prime:!!l.prime,picks:l.picks.map(v=>typeof v==='string'&&byName(v)?v:'')}))};
+      lives:x.lives.map(l=>({prime:!!l.prime,picks:l.picks.map(v=>typeof v==='string'?v.slice(0,128):'')}))};
     Object.assign(state,next);
     return true;
   }
@@ -43,7 +43,9 @@ if(root&&panel){
     const current=state.lives[state.generation-1],enabled=slot<4||current.prime;
     const selected=current.picks[slot-1]||'',blocked=new Set(allOtherNames(state.generation,slot));
     const options=legalChoices(slot).filter(m=>!blocked.has(m.n));
-    return `<label class="lineage-slot ${enabled?'':'lineage-disabled'}"><span class="field-label">Mutation slot ${slot}${slot===4?' · Prime':''}</span><select class="control w-full" data-lineage-slot="${slot}" ${enabled?'':'disabled'}><option value="">— Empty —</option>${options.map(m=>`<option value="${esc(m.n)}" ${m.n===selected?'selected':''}>${esc(m.n)}${m.tags.includes('Unlockable')?' ◇':''}</option>`).join('')}</select></label>`;
+    const why=selected?availabilityReason(byName(selected),getDino(),state.sex,slot):'';
+    const excluded=selected&&(why||blocked.has(selected));
+    return `<label class="lineage-slot ${enabled?'':'lineage-disabled'}"><span class="field-label">Mutation slot ${slot}${slot===4?' · Prime':''}</span><select class="control w-full" data-lineage-slot="${slot}" ${enabled?'':'disabled'}><option value="">— Empty —</option>${excluded?`<option value="${esc(selected)}" selected>${esc(selected)} — EXCLUDED: ${esc(why||'duplicate retained mutation')}</option>`:''}${options.filter(m=>m.n!==selected||!excluded).map(m=>`<option value="${esc(m.n)}" ${m.n===selected?'selected':''}>${esc(m.n)}${m.tags.includes('Unlockable')?' ◇':''}</option>`).join('')}</select></label>`;
   }
   function chosenRows(active){return active.map(r=>{
     const t=tierEffect(r.name,state.generation),m=byName(r.name);
@@ -74,6 +76,7 @@ if(root&&panel){
       state.generation===1?'<span>Reach 100% growth to Entomb and start Life 2.</span>':`<span>Life ${state.generation}: inherited benefits are calculated at ${tier} effectiveness. Each new pick starts at this life’s tier.</span>`,
       lineage.dropped.length?`<span class="lineage-warning">${lineage.dropped.length} non-replicating mutation${lineage.dropped.length===1?'':'s'} did not carry over: ${lineage.dropped.map(x=>esc(x.name)).join(', ')}.</span>`:'',
       lineage.overwritten.length?`<span class="lineage-warning">Oldest lineage cohort rotated out: ${lineage.overwritten.map(x=>esc(x.name)).join(', ')}.</span>`:'',
+      state.lives.slice(Math.max(0,state.generation-4),state.generation).some(l=>l.picks.some((n,i)=>n&&availabilityReason(byName(n),d,state.sex,i+1)))?`<span class="lineage-warning">One or more historical or ineligible picks are preserved but excluded from effective mutations. Inspect the selected slot and <a href="./sources.html">mutation evidence</a>.</span>`:'',
       lineage.duplicates.length?`<span class="lineage-warning">${lineage.duplicates.length} duplicate selection${lineage.duplicates.length===1?'':'s'} ignored. You cannot stack the same mutation twice.</span>`:'',
       metrics.unverified?`<span>${metrics.unverified} active mutation effect${metrics.unverified===1?'':'s'} lack verified numeric progression; base contribution is held constant.</span>`:'',
       `<span>Normal death breaks the lineage; ORIGIN-specific storage/restore and game updates may affect actual behavior.</span>`
