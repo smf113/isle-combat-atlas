@@ -57,10 +57,12 @@ test('A/B swap remains reciprocal and mirrored; 50% row with fixed B preserved',
 const releaseFiles=()=>({
   pkg:JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8')),
   index:readFileSync(new URL('../site/index.html',import.meta.url),'utf8'),
-  log:readFileSync(new URL('../site/changelog.html',import.meta.url),'utf8')
+  log:readFileSync(new URL('../site/changelog.html',import.meta.url),'utf8'),
+  sources:readFileSync(new URL('../site/sources.html',import.meta.url),'utf8'),
+  readme:readFileSync(new URL('../README.md',import.meta.url),'utf8')
 });
 const attribute=(tag,name)=>tag.match(new RegExp('\\b'+name+'="([^"]*)"'))?.[1];
-function verifyRelease({pkg,index,log}){
+function verifyRelease({pkg,index,log,sources,readme}){
   const version=pkg.version;
   assert.match(version,/^\d+\.\d+\.\d+$/,'Package must use semantic major.minor.patch format');
   // Constrain the version check to the actual footer anchor, not an incidental mention.
@@ -80,6 +82,12 @@ function verifyRelease({pkg,index,log}){
   assert.match(latest[2],/^(January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}$/);
   const snapshot=log.match(/<strong>Gameplay-data snapshot: ([^<]+)<\/strong>/)?.[1];
   assert.equal(snapshot,'September 2026.','Gameplay snapshot is not tied to app release date');
+  // All current-version surfaces must agree. Historical changelog/version references may coexist.
+  const sourcesVersion=sources.match(/<dt>Application version<\/dt>\s*<dd>(\d+\.\d+\.\d+) \(software, not a data-refresh date\)<\/dd>/)?.[1];
+  assert.equal(sourcesVersion,version,'Sources page software version must match package.json');
+  const readmeVersion=readme.match(/\*\*Current release: v(\d+\.\d+\.\d+)\*\*/)?.[1];
+  assert.equal(readmeVersion,version,'README current-release marker must match package.json');
+  assert.doesNotMatch(readme,/current maintenance release is/i,'Remove obsolete README current-release wording');
   return version;
 }
 test('package version matches footer label, accessible name, linked changelog and latest heading',()=>{
@@ -103,4 +111,10 @@ test('version checker rejects incorrect footer values and historical-release fal
   assert.throws(()=>verifyRelease({...files,log:files.log.replace(
     'Gameplay-data snapshot: September 2026.', 'Gameplay-data snapshot:'
   )}),/Gameplay snapshot/);
+  assert.throws(()=>verifyRelease({...files,sources:files.sources.replace(
+    version+' (software, not a data-refresh date)', '0.0.0 (software, not a data-refresh date)'
+  )}),/Sources page software version/);
+  assert.throws(()=>verifyRelease({...files,readme:files.readme.replace(
+    '**Current release: v'+version+'**','**Current release: v0.0.0**'
+  )}),/README current-release marker/);
 });
