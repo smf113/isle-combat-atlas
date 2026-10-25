@@ -156,6 +156,61 @@ try:
         spectrum = page.locator('#matchupResult .matchup-spectrum').inner_text()
         assert spectrum.index('A advantage') < spectrum.index('B advantage')
         print('Baseline controls verified', flush=True)
+        # Fight conditions must update saved state, pressure index and the actual marker
+        # ONLY when a combatant has a relevant active mutation.
+        page.locator('#matchupReset').click()
+        def current_ratio():
+            return float(page.locator('#matchupResult .matchup-verdict .muted strong').inner_text().replace('×', ''))
+        def current_marker():
+            return page.locator('#matchupResult .matchup-spectrum-marker').get_attribute('style')
+        base_ratio,base_marker=current_ratio(),current_marker()
+        assert 'Hemomania' in page.locator('#matchupSideA .matchup-mutations').inner_text(), 'Allosaurus standard preset must include active Hemomania'
+        # A bleeding is relevant to B's mutations, not A's. No B Hemomania means no ratio shift.
+        page.locator('#matchupConditions [data-condition="aBleeding"]').check()
+        assert saved_matchup(page)['scenario']['aBleeding'] is True
+        assert current_ratio()==base_ratio
+        assert 'no modeled score change' in page.locator('#matchupResult .matchup-condition-feedback').inner_text()
+        page.locator('#matchupConditions [data-condition="aBleeding"]').uncheck()
+        # B bleeding activates A's Hemomania and moves the marker left.
+        page.locator('#matchupConditions [data-condition="bBleeding"]').check()
+        assert saved_matchup(page)['scenario']['bBleeding'] is True
+        assert current_ratio()>base_ratio, 'B bleeding should activate A Hemomania'
+        assert current_marker()!=base_marker, 'B bleeding must move the score marker'
+        assert 'Hemomania' in page.locator('#matchupResult .matchup-condition-feedback').inner_text()
+        assert 'Hemomania' in page.locator('#matchupResult .matchup-effect-grid').inner_text()
+        page.locator('#matchupConditions [data-condition="bBleeding"]').uncheck()
+        assert current_ratio()==base_ratio
+        assert current_marker()==base_marker
+        # A bleeding activates B's Hemomania when explicitly assigned.
+        page.locator('#matchupSideB [data-field="source"]').select_option('manual')
+        page.locator('#matchupSideB select[data-slot="1"]').select_option('Hemomania')
+        no_bleed=current_ratio()
+        page.locator('#matchupConditions [data-condition="aBleeding"]').check()
+        assert current_ratio()<no_bleed, 'A bleeding should activate B Hemomania'
+        assert saved_matchup(page)['scenario']['aBleeding'] is True
+        page.locator('#matchupConditions [data-condition="aBleeding"]').uncheck()
+        assert current_ratio()==no_bleed
+        # Low health activates Accelerated Prey Drive on the opposing side.
+        page.locator('#matchupSideA [data-field="source"]').select_option('manual')
+        page.locator('#matchupSideA select[data-slot="1"]').select_option('Accelerated Prey Drive')
+        healthy=current_ratio()
+        page.locator('#matchupConditions [data-condition="bLowHealth"]').check()
+        assert current_ratio()>healthy
+        assert 'Accelerated Prey Drive' in page.locator('#matchupResult .matchup-condition-feedback').inner_text()
+        page.locator('#matchupConditions [data-condition="bLowHealth"]').uncheck()
+        assert current_ratio()==healthy
+        # With both builds unmutated, changing any fight condition is tracked but is not a generic penalty.
+        page.locator('#matchupSideA [data-field="source"]').select_option('none')
+        page.locator('#matchupSideB [data-field="source"]').select_option('none')
+        neutral=current_ratio()
+        for flag in ['aBleeding','bBleeding','aLowHealth','bLowHealth']:
+            page.locator(f'#matchupConditions [data-condition="{flag}"]').check()
+            assert current_ratio()==neutral, f'{flag} incorrectly changed baseline combat power'
+            assert 'no modeled score change' in page.locator('#matchupResult .matchup-condition-feedback').inner_text()
+            page.locator(f'#matchupConditions [data-condition="{flag}"]').uncheck()
+        page.locator('#matchupReset').click()
+        print('Fight-condition change and no-effect feedback verified', flush=True)
+
 
         # Initial shared link, fractional generation -> Life 1; stale storage cannot win.
         original_a = build_lineage('Allosaurus', 1.5, 'Hemomania')

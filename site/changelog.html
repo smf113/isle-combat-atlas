@@ -2,6 +2,11 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1321"><title>Changelog | ORIGIN Combat &amp; Build Lab</title><link rel="stylesheet" href="./assets/styles.css"></head>
 <body><main style="max-width:880px;margin:2rem auto;padding:1rem 1.4rem;line-height:1.65"><p><a href="./index.html">← Back to Combat &amp; Build Lab</a></p>
 <h1>Changelog</h1><p>Application releases describe code changes, not new game-balance research. <strong>Gameplay-data snapshot: September 2026.</strong></p>
+<section class="detail-card"><h2>Version 1.0.3 — October 25, 2026</h2><p>Matchup fight-condition verification and clarity update. No scoring recalibration or game-data refresh.</p><ul>
+<li>Verified in Chromium that a bleeding or low-health checkbox updates saved state, score, effects and marker only when the opposing dinosaur has an applicable active mutation.</li>
+<li>Added explicit feedback for each selected condition explaining either the triggered mutation bonus or why the score remains unchanged.</li>
+<li>Added model and browser regression checks for A/B directional bleed, low-health triggers, and unmutated no-effect cases.</li>
+</ul><p><strong>Known limitations:</strong> Bleeding and low health are conditions for modeled mutations, not independent generic damage penalties. Combat scores remain heuristic; bleed damage over time, stamina and other unquantified mechanics are not simulated. Gameplay-data snapshot remains September 2026.</p></section>
 <section class="detail-card"><h2>Version 1.0.2 — October 23, 2026</h2><p>Maintenance-only release; no gameplay scoring or data changes.</p><ul>
 <li>Matchup browser checks now verify selected dinosaurs, generations, imported mutation chips and detached A/B lineage snapshots, including initial shared links and later hash changes.</li>
 <li>Tests include deliberate incorrect-state checks to demonstrate that wrong imports, mutation displays, or modified planner state are rejected.</li>

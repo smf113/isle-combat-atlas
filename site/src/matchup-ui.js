@@ -79,7 +79,25 @@ if(root&&panel){
   function renderResult(){
     const r=calculateMatchup(state.a,state.b,state.scenario);
     const tilt=advantagePosition(r.adjusted);
+    // Circumstances are triggers for particular mutations, not generic injury penalties.
+    // Show when a selected condition has been applied but produces no numeric effect.
+    const conditionMap=[
+      ['aBleeding','A is bleeding','B','Hemomania',r.bFx],
+      ['bBleeding','B is bleeding','A','Hemomania',r.aFx],
+      ['aLowHealth','A below 35% health','B','Accelerated Prey Drive',r.bFx],
+      ['bLowHealth','B below 35% health','A','Accelerated Prey Drive',r.aFx]
+    ];
+    const selectedConditions=conditionMap.filter(([key])=>r.scenario[key]);
+    const conditionFeedback=selectedConditions.length
+      ? `<div class="matchup-condition-feedback" role="status" aria-live="polite"><strong>Selected fight circumstances:</strong><ul>${selectedConditions.map(([,label,beneficiary,mutation,fx])=>{
+          const effect=fx.events.find(event=>event.name===mutation);
+          return effect
+            ? `<li>${esc(label)} → Side ${beneficiary}'s ${esc(mutation)} applies: ${esc(effect.note)}.</li>`
+            : `<li>${esc(label)} → no modeled score change. Side ${beneficiary} needs active ${esc(mutation)} for this condition to alter the ratio.</li>`;
+        }).join('')}</ul></div>`
+      : '';
     $('#matchupResult').innerHTML=`<div class="matchup-verdict"><div><span class="field-label">Matchup assessment · equal player skill assumed</span><div class="matchup-verdict-title">${esc(r.category)}</div><div class="muted">${esc(r.a.d.n)} vs ${esc(r.b.d.n)} · relative combat-pressure index <strong>${formatRatio(r.adjusted)}</strong> (A ÷ B)</div></div><div class="matchup-verdict-metrics"><span class="pill">Baseline ${formatRatio(r.baseline)}</span><span class="pill">With modeled mutations ${formatRatio(r.adjusted)}</span></div></div>
+      ${conditionFeedback}
       <div class="matchup-spectrum"><span>A advantage</span><div class="matchup-spectrum-track"><span class="matchup-spectrum-center"></span><span class="matchup-spectrum-marker" style="left:${tilt}%"></span></div><span>B advantage</span></div>
       <div class="muted matchup-qualifier">The marker is a relative heuristic, <strong>not a predicted win rate</strong>. Actual outcomes depend on player skill, attacks, terrain, positioning, bleed and stamina, most of which aren't measured here.</div>
       <div class="matchup-effect-grid">${effectMarkup(r.aFx,r.a)}${effectMarkup(r.bFx,r.b)}</div>

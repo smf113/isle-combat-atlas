@@ -179,3 +179,32 @@ test('50% growth retains previous rows and second slot transition',()=>{
  assert.equal(young.active.length,1);assert.equal(unlocked.active.length,2);
  assert.equal(young.pending.length,2);assert.equal(unlocked.pending.length,1);
 });
+
+test('fight circumstances trigger the attacker against the affected opponent, not the injured attacker',()=>{
+  const base=side('Allosaurus');
+  const hemomania=side('Allosaurus',{source:'manual',manual:['Hemomania','','','']});
+  const neutral=calculateMatchup(hemomania,base);
+  assert.equal(neutral.adjusted,1);
+  assert.equal(calculateMatchup(hemomania,base,{aBleeding:true}).adjusted,1);
+  const bBleeds=calculateMatchup(hemomania,base,{bBleeding:true});
+  assert.ok(Math.abs(bBleeds.adjusted-1.05)<1e-10);
+  assert.equal(bBleeds.aFx.events[0].name,'Hemomania');
+  assert.deepEqual(bBleeds.scenario.bBleeding,true);
+  const aBleeds=calculateMatchup(base,hemomania,{aBleeding:true});
+  assert.ok(Math.abs(aBleeds.adjusted-1/1.05)<1e-10);
+  assert.equal(aBleeds.bFx.events[0].name,'Hemomania');
+  assert.equal(calculateMatchup(base,base,{aBleeding:true,bBleeding:true}).adjusted,1);
+});
+
+test('low-health conditions trigger only the opposing active Accelerated Prey Drive',()=>{
+  const base=side('Allosaurus');
+  const drive=side('Allosaurus',{source:'manual',manual:['Accelerated Prey Drive','','','']});
+  assert.equal(calculateMatchup(drive,base,{aLowHealth:true}).adjusted,1);
+  assert.ok(Math.abs(calculateMatchup(drive,base,{bLowHealth:true}).adjusted-1.10)<1e-10);
+  assert.ok(Math.abs(calculateMatchup(base,drive,{aLowHealth:true}).adjusted-1/1.10)<1e-10);
+  assert.equal(calculateMatchup(base,base,{aLowHealth:true,bLowHealth:true}).adjusted,1);
+  const both=calculateMatchup(drive,drive,{aLowHealth:true,bLowHealth:true});
+  assert.equal(both.adjusted,1);
+  assert.equal(both.aFx.events[0].name,'Accelerated Prey Drive');
+  assert.equal(both.bFx.events[0].name,'Accelerated Prey Drive');
+});
