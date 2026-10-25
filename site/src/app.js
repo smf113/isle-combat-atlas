@@ -1,9 +1,13 @@
 /** Browser application controller. Keeps gameplay data separate in data.js. */
 import {contexts,mutations,dinos,weights,synergies,dims,dimNames,growthSteps,eligibleMutation,availabilityReason,removedMutations} from './data.js';
 import {standardPicks} from './matchup-model.js';
+import {initProfileUI,shareUrlWithProfile} from './profiles.js';
+import {reviewDate} from './evidence.js';
 
   (()=>{
     const root=document.getElementById('origin-lab-v3'); if(!root||root.dataset.ready)return; root.dataset.ready='1';
+    initProfileUI();
+    const researchChip=document.getElementById('researchChip');if(researchChip)researchChip.textContent='Evidence reviewed · '+reviewDate+' · Sources';
     const activeContexts = new Set();
 
     let selected='Allosaurus',prime=false,growth=75,sex='Male';
@@ -33,7 +37,7 @@ import {standardPicks} from './matchup-model.js';
     function renderContexts(){const box=root.querySelector('#contextButtons');box.innerHTML=Object.entries(contexts).map(([k,v])=>`<button type='button' class='context-btn' data-context='${k}' aria-pressed='${activeContexts.has(k)}'>${v}</button>`).join('');box.querySelectorAll('[data-context]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.context;activeContexts.has(k)?activeContexts.delete(k):activeContexts.add(k);maxCache.clear();renderContexts();renderCustom();renderMutations();}));}
 
     function renderRankings(){const q=root.querySelector('#dinoSearch').value.trim().toLowerCase(),diet=root.querySelector('#dietFilter').value,min=root.querySelector('#soloFilter').value==='all'?0:Number(root.querySelector('#soloFilter').value),all=ranked(),list=root.querySelector('#rankList');list.innerHTML='';all.filter(d=>(!q||`${d.n} ${d.role}`.toLowerCase().includes(q))&&(diet==='all'||d.diet===diet)&&d.solo>=min).forEach(d=>{const r=all.findIndex(x=>x.n===d.n)+1,b=document.createElement('button');b.type='button';b.className='rank-row';b.setAttribute('aria-current',String(d.n===selected));b.innerHTML=`<span class='rank-num'>${r}</span><span><strong>${d.n}</strong><span class='muted block'>${d.diet} · ${fmtKg(d.kg)} · ${d.role}</span></span><span class='score-wrap'><span class='flex justify-between text-xs'><span>Score</span><strong>${scoreDino(d)}</strong></span><span class='score-track block'><span class='score-fill block' style='width:${scoreDino(d)}%'></span></span></span><strong class='text-center'>${d.solo}/5</strong><strong class='text-center'>${d.threat}/5</strong>`;b.addEventListener('click',()=>sync(d.n));list.appendChild(b);});}
-    function renderRankDetail(){const d=dinos.find(x=>x.n===selected);root.querySelector('#rankDetail').innerHTML=`<div class='flex flex-wrap justify-between gap-3'><div><div class='text-xl font-bold'>${d.n}</div><div class='muted'>${d.role} · ${fmtKg(d.kg)}</div></div><div class='text-right'><div class='text-2xl font-extrabold'>${scoreDino(d)}</div><div class='muted'>ORIGIN Solo Score</div></div></div><div class='grid md:grid-cols-2 gap-4 mt-4'><div><div class='section-title'>Reasonable adult targets</div><div class='chips mt-2'>${chips(d.fav,'good')}</div></div><div><div class='section-title'>Biggest threats</div><div class='chips mt-2'>${chips(d.danger,'danger')}</div></div></div>`;}
+    function renderRankDetail(){const d=dinos.find(x=>x.n===selected);root.querySelector('#rankDetail').innerHTML=`<div class='flex flex-wrap justify-between gap-3'><div><div class='text-xl font-bold'>${d.n}</div><div class='muted'>${d.role} · ${fmtKg(d.kg)}</div></div><div class='text-right'><div class='text-2xl font-extrabold'>${scoreDino(d)}</div><div class='muted'>Atlas Solo Score</div></div></div><div class='grid md:grid-cols-2 gap-4 mt-4'><div><div class='section-title'>Reasonable adult targets</div><div class='chips mt-2'>${chips(d.fav,'good')}</div></div><div><div class='section-title'>Biggest threats</div><div class='chips mt-2'>${chips(d.danger,'danger')}</div></div></div>`;}
     function renderBuild(){const d=dinos.find(x=>x.n===selected),p=standardPicks(d.n,sex),active=prime?p:p.slice(0,3),ev=evaluate(d,p);root.querySelector('#buildDetail').innerHTML=`<div class='detail-card'><div class='flex flex-wrap justify-between gap-3'><div><div class='text-xl font-bold'>${d.n}</div><div class='muted'>Recommended natural-grow staging area</div></div><span class='pill'>${prime?'Prime · 4 slots':'Normal · 3 slots'}</span></div><div class='font-semibold mt-2'>${d.area}</div></div><div class='detail-card mt-3'><div class='flex flex-wrap justify-between gap-2'><div class='section-title'>Default ${d.arch} build</div><strong>${ev.score}/100 fit</strong></div><div class='chips mt-2'>${active.map((m,i)=>`<span class='pill'>S${i+1}: ${m}</span>`).join('')}</div><div class='muted mt-3'>This is the baseline combat/survival build. Situational alternatives can outperform it when you deliberately select a matching environment or objective in Custom Build.</div></div>`;}
 
     function fillSelects(){
@@ -110,7 +114,7 @@ import {standardPicks} from './matchup-model.js';
     }
     function saveBuild(){try {localStorage.setItem(storageKey,JSON.stringify(captureBuild()));}catch{}}
     root.querySelector('#shareBuild').addEventListener('click',async()=>{
-      const u=location.href.split('#')[0]+'#build='+encodeURIComponent(JSON.stringify(captureBuild()));
+      const u=shareUrlWithProfile('build='+encodeURIComponent(JSON.stringify(captureBuild())));
       const status=root.querySelector('#shareStatus');const fallback=root.querySelector('#shareFallback');
       try {await navigator.clipboard.writeText(u);status.textContent='Build link copied. Open it on any device.';fallback.classList.add('hidden');}
       catch {fallback.value=u;fallback.classList.remove('hidden');fallback.focus();fallback.select();status.textContent='Copy this link to share or open on another device.';}
