@@ -54,7 +54,9 @@ if(root&&panel){
   }).join('')||'<span class="muted">Select a mutation to see your lineage.</span>'}
   function render(){
     const life=state.lives[state.generation-1],lineage=activeAt(state.lives,state.generation),cap=capacityAt(state.lives,state.generation),d=getDino();
-    const metrics=lineageFit(lineage.active,d,state.generation,state.contexts,cap);
+    // Retained old identifiers may remain displayed, but cannot influence fit if unavailable or ineligible.
+    const effective=lineage.active.filter(row=>eligible(byName(row.name),d,state.sex,row.slot));
+    const metrics=lineageFit(effective,d,state.generation,state.contexts,cap,state.sex);
     $('#entombDino').innerHTML=dinos.map(x=>`<option ${x.n===state.dino?'selected':''}>${esc(x.n)}</option>`).join('');
     $('#entombSex').value=state.sex;
     $('#entombGenerations').innerHTML=Array.from({length:MAX_GENERATION},(_,i)=>{
@@ -63,12 +65,12 @@ if(root&&panel){
     }).join('');
     $('#entombPrime').checked=life.prime;
     $('#entombPicks').innerHTML=[1,2,3,4].map(makeSelector).join('');
-    $('#entombMetrics').innerHTML=`<div class="lineage-metrics"><div><span class="muted block">Effective mutations</span><strong>${lineage.active.length}<span class="muted">/${cap}</span></strong></div><div><span class="muted block">Retained from prior lives</span><strong>${lineage.active.filter(r=>r.inherited).length}</strong></div><div><span class="muted block">Relative build fit</span><strong>${metrics.fit}<span class="muted">/100</span></strong></div></div>
+    $('#entombMetrics').innerHTML=`<div class="lineage-metrics"><div><span class="muted block">Effective mutations</span><strong>${effective.length}<span class="muted">/${cap}</span></strong></div><div><span class="muted block">Retained from prior lives</span><strong>${effective.filter(r=>r.inherited).length}</strong></div><div><span class="muted block">Relative build fit</span><strong>${metrics.fit}<span class="muted">/100</span></strong></div></div>
       <div class="muted mt-2">Relative fit is an experimental role-weighted heuristic, not a combat win probability. It compares this ${d.arch} build with other ${cap}-slot combinations and credits verified Entomb bonuses.</div>`;
-    $('#entombChipList').innerHTML=chosenRows(lineage.active);
+    $('#entombChipList').innerHTML=chosenRows(effective);
     $('#entombContexts').innerHTML=Object.entries(contexts).map(([k,v])=>`<button type="button" class="context-btn" data-lineage-context="${k}" aria-pressed="${state.contexts.includes(k)}">${esc(v)}</button>`).join('');
     const tier=state.generation>=3?'Life 3+':`Life ${state.generation}`;
-    $('#entombTiers').innerHTML=`<div class="section-title">Mutation effectiveness · ${tier}</div><div class="muted mt-1">Exact percentages only where separately documented; other bonuses are deliberately not extrapolated.</div><div class="lineage-tier-list mt-3">${lineage.active.map(r=>{
+    $('#entombTiers').innerHTML=`<div class="section-title">Mutation effectiveness · ${tier}</div><div class="muted mt-1">Exact percentages only where separately documented; other bonuses are deliberately not extrapolated.</div><div class="lineage-tier-list mt-3">${effective.map(r=>{
       const t=tierEffect(r.name,state.generation);
       return `<div class="lineage-tier-row"><span>${esc(r.name)} <span class="muted">(L${r.life})</span></span><strong>${t?t.label:'Not quantified'}</strong></div>`;
     }).join('')||'<span class="muted">No mutations selected.</span>'}</div>`;
