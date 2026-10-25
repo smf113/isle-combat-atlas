@@ -31,4 +31,12 @@ Validation evidence and limits:
 - This checkpoint-only update has a newer head and will also require current-head CI confirmation before PR review. Browser-based validation on mobile Safari and user environment is **still unverified**; do not equate headless 390px Chromium with iOS acceptance.
 - No independent live-game validation of 22 historical masses, role scores, individual mutation effects, Prime curve or ORIGIN combat overrides. Those remain explicitly documented as estimated/unverified.
 
-Next: verify CI for the final PR head, obtain user validation (especially mobile Safari and profile/URL behavior), reconcile [Workbench release register #49](https://github.com/smf113/Workbench/issues/49), then request explicit PR review/merge authorization. Map and UI cleanup remain later phases.
+## Live-first validation preference and blocked direct deployment
+
+On October 25, 2026 the user declined local site setup and approved **reviewing the deployed production GitHub Pages site**, with a separate development site reserved as a possible future workflow change. This did **not** expressly authorize merging PR #6.
+
+A temporary branch-push Pages trigger was tried without merging. The branch [push run 40227364840](https://github.com/smf113/isle-combat-atlas/actions/runs/40227364840) passed Node and Chromium verification, but the `github-pages` deployment job failed before any steps ran. The connector reported no available deployment job log, so the exact reason is not established; environment branch restrictions are a plausible explanation, not verified fact. **No successful v1.2.0 live deployment resulted from this attempt.**
+
+The temporary workflow push trigger and concurrency changes were **reverted** so this PR does not permanently alter the standard `main`-only deployment workflow. The existing v1.1.0 production release is the last verified successful deployment. Review the final PR diff and CI before any merge.
+
+Next: user reviews [PR #6](https://github.com/smf113/isle-combat-atlas/pull/6) and **explicitly authorizes merge of its current head** if they want the current Pages pipeline to publish v1.2.0. After an authorized merge, verify `main`, deployment workflow success and available production evidence, then user reviews the live site on desktop/iOS; record issues for correction in a new branch if needed. No local checkout is required. Map and UI cleanup remain later phases.
