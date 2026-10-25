@@ -347,6 +347,7 @@ try:
         assert page.locator('a.snapshot-chip[href="./sources.html"]').is_visible()
         page.locator('a.snapshot-chip').focus()
         page.keyboard.press('Enter')
+        page.wait_for_url('**/sources.html')
         assert page.url.endswith('/sources.html'), 'Snapshot must be keyboard navigable'
         print('Source navigation, desktop/mobile evidence and historical-save checks verified', flush=True)
 
