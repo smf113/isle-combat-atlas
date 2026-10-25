@@ -86,3 +86,9 @@ button,input,select{font:inherit}button{cursor:pointer;transition:background .14
 #origin-lab-v3 .prime-btn,#origin-lab-v3 .tab-btn,#origin-lab-v3 .context-btn,#origin-lab-v3 .growth-btn{background:transparent;border-radius:0}
 #origin-lab-v3 .context-btn,#origin-lab-v3 .growth-btn{border-radius:8px}
 #origin-lab-v3 .prime-btn[aria-pressed='true'],#origin-lab-v3 .tab-btn[aria-selected='true'],#origin-lab-v3 .context-btn[aria-pressed='true'],#origin-lab-v3 .growth-btn[aria-pressed='true']{background:var(--viz-accent-bg)}
+
+/* Explicit official/public and optional server profile context, usable at narrow widths. */
+#origin-lab-v3 .profile-selector{display:grid;gap:4px;min-width:170px;max-width:250px;margin-left:auto}
+#origin-lab-v3 .profile-selector .control{width:100%;min-height:42px}
+#origin-lab-v3 [data-profile-description]{overflow-wrap:anywhere}
+@media(max-width:620px){#origin-lab-v3 .profile-selector{flex-basis:100%;max-width:100%;margin-left:0}}

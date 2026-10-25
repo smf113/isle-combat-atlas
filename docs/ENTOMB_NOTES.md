@@ -1,6 +1,6 @@
 # Entomb lineage model (October 2026)
 
-This is a **community-based simulator**, not a live game feed, save editor, or verified ORIGIN backend integration. The ordinary Rankings/Custom Build scores are unchanged. The separate Entomb Planner models multiple lives and uses a relative role-fit heuristic to visualize composition; **a fit of 90 is not a 90% chance of winning a fight.**
+This is a **community-based simulator**, not a live game feed, save editor, or verified server backend integration. The ordinary Rankings/Custom Build scores are unchanged. The separate Entomb Planner models multiple lives and uses a relative role-fit heuristic to visualize composition; **a fit of 90 is not a 90% chance of winning a fight.**
 
 ## Rules modeled
 
@@ -27,4 +27,4 @@ In `site/src/entomb-model.js`, `ENTOMB_TIERS` contains **mutation-specific** tie
 - [The Isle: Ultimate Survival Guide on Steam](https://steamcommunity.com/sharedfiles/filedetails/?id=3440690332) — entomb rollover after fourth life, risk, and slot commentary.
 - [Divergent community reports on non-replicating mutations](https://www.reddit.com/r/theisle/comments/1skeubh/how_does_parthenogenesis_interact_with_entombing/) — practical loss of Parthenogenesis after Entomb; [another thread](https://www.reddit.com/r/The_Isle/comments/1te6cur/entombment_mutations_question/) contains conflicting replies.
 
-These sources are **not official live validation** of every ORIGIN server implementation. Recheck after game updates. The source dataset and current mutation availability may be stale; this planner is scoped to documenting the new life-cycle system without making unsupported blanket claims.
+These sources are **not official live validation** of every public or unofficial server implementation. Recheck after game updates. The source dataset and current mutation availability may be stale; this planner is scoped to documenting the new life-cycle system without making unsupported blanket claims.
