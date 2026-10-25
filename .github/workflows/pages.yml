@@ -1,7 +1,7 @@
 name: Deploy static site to GitHub Pages
 on:
   push:
-    branches: [main]
+    branches: [main, feat/official-evrima-profiles-evidence-20261025] # TEMPORARY: user-approved live review without merging PR #6
   pull_request:
     branches: [main]
   workflow_dispatch:
