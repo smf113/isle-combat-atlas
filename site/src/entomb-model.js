@@ -1,11 +1,11 @@
 /** Lineage simulation, separate from the baseline single-life ranking model.
  * Sources and cautions: docs/ENTOMB_NOTES.md. All scores are heuristic.
  */
-import {mutations,weights,synergies,dims} from './data.js';
+import {mutations,weights,synergies,dims,removedMutations,eligibleMutation,availabilityReason} from './data.js';
 export const MAX_MUTATIONS=16;
 export const MAX_GENERATION=5; // Gen 5 demonstrates 12 retained + 4 new, oldest cohort rotates out.
 export const NON_REPLICATING=new Set(['Parthenogenesis','Sequential Hermaphroditism']);
-export const UNAVAILABLE=new Set(['Traumatic Thrombosis']);
+export const UNAVAILABLE=removedMutations;
 /** Explicit, observed per-life effects: Life 3+ values stop increasing. No assumed multiplier otherwise. */
 export const ENTOMB_TIERS={
   'Accelerated Prey Drive':[10,15,20],
@@ -43,15 +43,7 @@ export const byName=name=>mutations.find(m=>m.n===name);
 export const blankLife=(prime=false)=>({prime,picks:['','','','']});
 export const emptyLineage=()=>Array.from({length:MAX_GENERATION},()=>blankLife());
 export const normalizeGeneration=n=>Math.min(MAX_GENERATION,Math.max(1,Math.trunc(Number(n)||1)));
-export function eligible(m,d,sex,slot){
-  if(!m||!d||UNAVAILABLE.has(m.n))return false;
-  const slots=(m.slots.includes(slot)||(slot===4 && m.slots.includes(2) && (m.cat==='Slot 2'||m.cat==='Unlockable')));
-  // Certain unlocks occupy both slots 2 & 4 in current reference; not every [2] mutation does.
-  const slotOK=slots && !(slot===4&&['Enhanced Digestion','Multichambered Lungs','Reniculate Kidneys'].includes(m.n));
-  const dietOK=m.diet==='Any'||m.diet===d.diet||(m.diet==='Herbivore/Omnivore'&&['Herbivore','Omnivore'].includes(d.diet));
-  if(m.n==='Cannibalistic'&&['Deinosuchus','Ceratosaurus'].includes(d.n))return false;
-  return slotOK && dietOK && (m.sex==='Any'||m.sex===sex);
-}
+export const eligible=eligibleMutation;
 export function tierEffect(name,generation){
   const a=ENTOMB_TIERS[name];if(!a)return null;
   const tier=Math.min(3,normalizeGeneration(generation));
@@ -65,6 +57,8 @@ export function activeAt(lives,generation){
       const name=typeof plan.picks?.[slot-1]==='string'?plan.picks[slot-1]:'';
       if(!name||!byName(name))continue;
       const row={name,life,slot,inherited:life<gen};
+      // Historical removed names stay in saved lives but never contribute an active effect.
+      if(removedMutations.has(name))continue;
       if(life<start){overwritten.push(row);continue;}
       if(life<gen&&NON_REPLICATING.has(name)){dropped.push(row);continue;}
       if(active.some(x=>x.name===name)){duplicates.push(row);continue;}
@@ -89,9 +83,7 @@ export function lineageFit(rows,d,generation,enabledContexts=[],capacity=16){
   };
   const measured=names.map(value).sort((a,b)=>b-a);
   const discount=(list)=>list.reduce((s,v,i)=>s+v*Math.pow(.95,i),0);
-  const eligibleNames=mutations.filter(m=>!UNAVAILABLE.has(m.n)&&
-    (m.diet==='Any'||m.diet===d.diet||(m.diet==='Herbivore/Omnivore'&&d.diet==='Omnivore')) &&
-    (m.sex==='Any'||rows.some(r=>r.name===m.n))).map(m=>m.n);
+  const eligibleNames=mutations.filter(m=>[1,2,3,4].some(slot=>eligibleMutation(m,d,'Male',slot)||eligibleMutation(m,d,'Female',slot))).map(m=>m.n);
   const benchmark=eligibleNames.map(value).sort((a,b)=>b-a).slice(0,capacity);
   const synergy=synergies.reduce((sum,[a,b,boost])=>sum+(names.includes(a)&&names.includes(b)?boost:0),0);
   const raw=discount(measured)+synergy,ceiling=Math.max(1,discount(benchmark));
