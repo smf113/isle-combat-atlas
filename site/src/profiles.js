@@ -87,6 +87,7 @@ export function renderProfile(){
 }
 export function initProfileUI(){
   if(typeof document==='undefined')return;
+  try { localStorage.setItem(PROFILE_STORAGE,activeId); } catch {}
   document.querySelectorAll('[data-server-profile]').forEach(el=>el.addEventListener('change',()=>setActiveProfile(el.value)));
   renderProfile();
 }
