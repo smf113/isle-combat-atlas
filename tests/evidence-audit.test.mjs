@@ -63,7 +63,7 @@ test('sources page, model links, version and old research snapshot coexist',()=>
  assert.ok(index.includes('href="./sources.html">Sources &amp; Methodology</a>'));
  assert.ok(method.includes('href="./sources.html"'));
  assert.ok(index.includes('Version '+version+' · Changelog'));
- assert.ok(page.includes('1.1.0')&&page.includes('id="evidenceSearch"')&&page.includes('id="evidenceStatus"'));
+ assert.ok(page.includes(version+' (software, not a data-refresh date)')&&page.includes('id="evidenceSearch"')&&page.includes('id="evidenceStatus"'));
  assert.ok(ui.includes('mutationEvidence')&&ui.includes('safe(m.id)')&&ui.includes('revealHash'));
  assert.ok(read('site/assets/sources.css').includes('@media(max-width:720px)'));
  assert.ok(read('site/src/matchup-ui.js').includes('./sources.html#calculation-stacking'));
