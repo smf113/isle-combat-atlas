@@ -59,11 +59,11 @@ test('every mutation and calculation component has a typed, dated source record'
 test('sources page, model links, version and old research snapshot coexist',()=>{
  const index=read('site/index.html'),page=read('site/sources.html'),ui=read('site/src/sources-ui.js'),method=read('site/methodology.html');
  const version=JSON.parse(read('package.json')).version;
- assert.ok(index.includes('<a class="snapshot-chip" href="./sources.html" aria-label='));
+ assert.ok(index.includes('<a class="snapshot-chip" href="./sources.html" id="researchChip" aria-label='));
  assert.ok(index.includes('href="./sources.html">Sources &amp; Methodology</a>'));
  assert.ok(method.includes('href="./sources.html"'));
  assert.ok(index.includes('Version '+version+' · Changelog'));
- assert.ok(page.includes('1.1.0')&&page.includes('id="evidenceSearch"')&&page.includes('id="evidenceStatus"'));
+ assert.ok(page.includes(version+' (software, not a data-refresh date)')&&page.includes('id="evidenceSearch"')&&page.includes('id="evidenceStatus"'));
  assert.ok(ui.includes('mutationEvidence')&&ui.includes('safe(m.id)')&&ui.includes('revealHash'));
  assert.ok(read('site/assets/sources.css').includes('@media(max-width:720px)'));
  assert.ok(read('site/src/matchup-ui.js').includes('./sources.html#calculation-stacking'));

@@ -1,5 +1,6 @@
 /** Interactive 1–5 generation lineage planner. Baseline single-life score stays unchanged. */
 import {contexts,dinos,mutations,weights,dimNames,dims,availabilityReason} from './data.js';
+import {shareUrlWithProfile} from './profiles.js';
 import {MAX_GENERATION,normalizeGeneration,NON_REPLICATING,emptyLineage,activeAt,capacityAt,byName,eligible,tierEffect,lineageFit} from './entomb-model.js';
 
 const root=document.getElementById('origin-lab-v3');
@@ -81,7 +82,7 @@ if(root&&panel){
       state.lives.slice(Math.max(0,state.generation-4),state.generation).some(l=>l.picks.some((n,i)=>n&&availabilityReason(byName(n),d,state.sex,i+1)))?`<span class="lineage-warning">One or more historical or ineligible picks are preserved but excluded from effective mutations. Inspect the selected slot and <a href="./sources.html">mutation evidence</a>.</span>`:'',
       lineage.duplicates.length?`<span class="lineage-warning">${lineage.duplicates.length} duplicate selection${lineage.duplicates.length===1?'':'s'} ignored. You cannot stack the same mutation twice.</span>`:'',
       metrics.unverified?`<span>${metrics.unverified} active mutation effect${metrics.unverified===1?'':'s'} lack verified numeric progression; base contribution is held constant.</span>`:'',
-      `<span>Normal death breaks the lineage; ORIGIN-specific storage/restore and game updates may affect actual behavior.</span>`
+      `<span>Normal death breaks the lineage; Unofficial-server storage/restore features and game updates may affect actual behavior.</span>`
     ].filter(Boolean).map(s=>`<p>${s}</p>`).join('');
     $('#entombDimensions').innerHTML=dims.map(k=>{const v=metrics.stats[k],max=Math.max(1,...dims.map(x=>metrics.stats[x]));return `<div class="metric"><span>${esc(dimNames[k])}</span><span class="metric-track"><span class="metric-fill block" style="width:${Math.min(100,Math.round(v/max*100))}%"></span></span><strong>${v.toFixed(1)}</strong></div>`}).join('');
     $('#entombShareStatus').textContent='';
@@ -118,7 +119,7 @@ if(root&&panel){
     }
     if(e.target.closest('#entombClear')){state.lives=emptyLineage();state.generation=1;state.contexts=[];update();return}
     if(e.target.closest('#entombShare')){
-      const url=location.href.split('#')[0]+'#lineage='+encodeURIComponent(JSON.stringify(saved()));
+      const url=shareUrlWithProfile('lineage='+encodeURIComponent(JSON.stringify(saved())));
       try{await navigator.clipboard.writeText(url);$('#entombShareStatus').textContent='Lineage link copied.';$('#entombShareFallback').classList.add('hidden')}
       catch{$('#entombShareFallback').value=url;$('#entombShareFallback').classList.remove('hidden');$('#entombShareFallback').focus();$('#entombShareFallback').select();$('#entombShareStatus').textContent='Copy this link to open your lineage on another device.'}
     }
