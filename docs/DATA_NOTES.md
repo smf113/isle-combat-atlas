@@ -26,3 +26,9 @@ The data and logic in `site/src/data.js` and the initial calculations in `site/s
 ## Historical reference
 
 The initial tool was authored from Sept 26–27, 2026, with user-requested iterations covering solo ranking, ORIGIN growth, recommended mutation builds, normalized custom scores, Prime toggle, 25–100% growth chart, and situational mutation choices.
+
+## Evidence-bound mutation reconciliation — October 25, 2026
+
+See `site/src/evidence.js` and `site/sources.html`. September 2026 source-data snapshot is still the originating baseline; review date is separate. A 42-entry catalog does not prove ORIGIN exhaustive coverage (41 matches in one current community list plus historic Traumatic Thrombosis). Official public patch 0.21.720 removed Traumatic Thrombosis for future reintegration. The entry is intentionally retained as historical data, excluded from any new selection or scoring; the removed bleed synergy has also been dropped. Unsupported Hordetest-only Pit Organ, Paratrepsis and Cochlear Sensitivity and removed Intraspecific Aggression are not enabled.
+
+Gastronomic Regeneration, Hypermetabolic Inanition and Tactile Endurance now explicitly allow slots [2,4] based on community sources; do not expand every slot-2 unlockable to slot 4. The other explicit slot restrictions are conservative. Diet/omnivore rules, unlock counts, inheritance details and server overrides remain uncertain. All consumers use `eligibleMutation`/`availabilityReason` in `data.js`; build-fit candidate sets can change. This does not validate site-assigned role/rank scores.
