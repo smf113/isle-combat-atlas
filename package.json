@@ -1,11 +1,11 @@
 {
-  "name": "origin-evrima-build-lab",
-  "version": "1.1.0",
+  "name": "isle-combat-atlas",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "start": "python -m http.server 8000 --directory site"
   },
-  "description": "Unofficial ORIGIN EVRIMA strategy atlas and mutation build calculator"
+  "description": "Unofficial EVRIMA build atlas with optional server contexts and inspectable research"
 }
