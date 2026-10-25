@@ -1,6 +1,6 @@
-# ORIGIN Evrima Combat & Build Lab
+# EVRIMA Combat Atlas
 
-A responsive, **static** fan-made web app for [*The Isle: EVRIMA*](https://store.steampowered.com/app/376210/The_Isle/), tailored to ORIGIN server assumptions. Recovered from the user's final interactive prototype (September 2026).
+A responsive, **static**, unofficial fan-made app for [*The Isle: EVRIMA*](https://store.steampowered.com/app/376210/The_Isle/). The **official public-branch profile** is the default; ORIGIN Main and ORIGIN Voice Chat are explicit optional overlays for server-published features. Its original combat model remains a September 2026 archival heuristic, not live official balance data.
 
 ## Entomb Planner (October 2026)
 
@@ -10,7 +10,8 @@ See [Entomb modeling notes](docs/ENTOMB_NOTES.md) for sourcing, caveats, mutatio
 
 ## Features
 
-- 22-dinosaur rankings, adult-matchup cards, solo ratings, and role details
+- Selectable public EVRIMA baseline (last official patch identified 0.21.772) or optional ORIGIN server context; overlays do not silently change combat formulas
+- 22-dinosaur *Atlas-estimated* rankings, adult-matchup cards, solo ratings, and role details
 - Recommended builds and growth areas
 - Legal-mutation filtering by species, diet, sex, slot and Prime status
 - Custom build scores (0–100), attribute splits, synergies, contextual bonuses, pros/cons
@@ -85,9 +86,9 @@ See [matchup notes](docs/MATCHUP_NOTES.md) for assumptions and constraints.
 
 ## Version and changelog
 
-The current maintenance release is **1.0.3 — October 25, 2026**; version 1.0.1 was the first documented release. The footer links to [the changelog](site/changelog.html). The gameplay-data research snapshot remains September 2026; the release is not a game-data refresh. Earlier changes were commits, not numbered releases.
+**Current release: v1.2.0** — October 25, 2026. Version 1.0.1 was the first documented release. The footer links to [the changelog](site/changelog.html). The gameplay-data research snapshot remains September 2026; the release is not a game-data refresh. Earlier changes were commits, not numbered releases.
 
-For later releases: update `package.json` version, the footer version in `site/index.html`, and the latest dated entry in `site/changelog.html`. Run `npm test` (reads version dynamically from package.json) and `python tests/browser_smoke.py` (real Playwright Chromium checks with deliberate negative controls), then open a PR and merge only when GitHub Actions passes. Browser screenshots are uploaded as CI artifacts for inspection. The browser smoke only checks 390px narrow-screen geometry, not every mobile device.
+For later releases: reconcile `package.json`, the footer label in `site/index.html`, the software-version field in `site/sources.html`, this README's **Current release** label, and the latest `site/changelog.html` heading. Do not change the original data snapshot or latest evidence review dates without a substantive corresponding review. Run `npm test` (reads version dynamically from package.json) and `python tests/browser_smoke.py` (real Playwright Chromium checks with deliberate negative controls), then open a PR and merge only when GitHub Actions passes. Browser screenshots are uploaded as CI artifacts for inspection. The browser smoke only checks 390px narrow-screen geometry, not every mobile device.
 
 ### Fight-condition behavior (October 25, 2026)
 
@@ -101,4 +102,4 @@ Official 0.21.720 removes Traumatic Thrombosis from new choices. Its historical 
 
 Do not infer that mutation percentage citations validate combat ratings. Species mass, 1–5 solo/threat, favored/danger lists, interpolation, counter coefficients, multiplicative stacking and victory categories are authored heuristics. The current model Prime peak at 87% differs from a community elder reference's 87.5%; the normal curve still rises to 100% contrary to a reported late decline. Applicability not established; no curve change in this release. Consult in-game state before relying on unlock counts or ORIGIN-specific exceptions.
 
-For subsequent releases, update `package.json`, footer version in `site/index.html`, latest entry in `site/changelog.html`, and `site/sources.html` software version only; do not modify `evidence.js` snapshot date without a genuine underlying data review.
+For subsequent releases, update version-bearing surfaces **together**: `package.json`, footer version in `site/index.html`, latest entry in `site/changelog.html`, this README release marker and `site/sources.html` software version. The regression suite checks those surfaces. Do not modify `evidence.js` snapshot or review dates without a genuine underlying data or evidence review. Track per-release documentation and validation review in [Workbench #49](https://github.com/smf113/Workbench/issues/49).
