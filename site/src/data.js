@@ -39,10 +39,10 @@
       M('Wader','Lifecycle','Any',[1,2,3,4],'25% less movement penalty in shallow water.',{off:0,def:0,sus:0,mob:4,util:3},{tags:['Circumstantial','Mobility'],ctx:{aquatic:4,coastal:3}}),
       M('Xerocole Adaptation','Lifecycle','Herbivore',[1,2,3,4],'Eating plants restores some water.',{off:0,def:0,sus:4,mob:1,util:1},{tags:['Survival']}),
 
-      M('Tactile Endurance','Slot 2','Herbivore',[2],'Converts incoming damage pressure into stamina pressure.',{off:0,def:5,sus:2,mob:1,util:3},{tags:['Combat','Survival']}),
+      M('Tactile Endurance','Slot 2','Herbivore',[2,4],'Converts incoming damage pressure into stamina pressure.',{off:0,def:5,sus:2,mob:1,util:3},{tags:['Combat','Survival']}),
       M('Traumatic Thrombosis','Slot 2','Any',[2],'Prevents death from blood loss while resting.',{off:0,def:5,sus:3,mob:0,util:3},{tags:['Combat','Survival']}),
-      M('Gastronomic Regeneration','Slot 2','Any',[2],'Eating restores a small amount of health.',{off:0,def:3,sus:5,mob:0,util:2},{tags:['Survival']}),
-      M('Hypermetabolic Inanition','Slot 2','Carnivore',[2],'Damage increases as hunger decreases.',{off:5,def:0,sus:0,mob:0,util:2},{tags:['Combat']}),
+      M('Gastronomic Regeneration','Slot 2','Any',[2,4],'Eating restores a small amount of health.',{off:0,def:3,sus:5,mob:0,util:2},{tags:['Survival']}),
+      M('Hypermetabolic Inanition','Slot 2','Carnivore',[2,4],'Damage increases as hunger decreases.',{off:5,def:0,sus:0,mob:0,util:2},{tags:['Combat']}),
 
       M('Augmented Tapetum','Unlockable','Carnivore',[2],'Increases night-vision range.',{off:2,def:1,sus:0,mob:0,util:4},{tags:['Circumstantial','Unlockable'],ctx:{night:7},unlock:'Kill 5 players at night.'}),
       M('Enhanced Digestion','Unlockable','Any',[2,3],'Decreases nutrition-decay rate.',{off:0,def:0,sus:4,mob:1,util:2},{tags:['Survival','Unlockable'],unlock:'Maintain nutrients for 60 minutes.'}),
@@ -81,23 +81,40 @@
     ];
 
     const presets={
-      bleed:['Hemomania','Traumatic Thrombosis','Epidermal Fibrosis','Accelerated Prey Drive'],
+      bleed:['Hemomania','Congenital Hypoalgesia','Epidermal Fibrosis','Accelerated Prey Drive'],
       brawler:['Cellular Regeneration','Gastronomic Regeneration','Epidermal Fibrosis','Osteosclerosis'],
       runner:['Efficient Digestion','Multichambered Lungs','Sustained Hydration','Cellular Regeneration'],
       defender:['Osteosclerosis','Tactile Endurance','Epidermal Fibrosis','Cellular Regeneration'],
       aquatic:['Hydrodynamic','Gastronomic Regeneration','Increased Inspiratory Capacity','Submerged Optical Retention'],
-      climber:['Featherweight','Traumatic Thrombosis','Reinforced Tendons','Cellular Regeneration'],
+      climber:['Featherweight','Cellular Regeneration','Reinforced Tendons','Hydrodynamic'],
       flyer:['Reinforced Tendons','Multichambered Lungs','Increased Inspiratory Capacity','Sustained Hydration'],
       apex:['Congenital Hypoalgesia','Hypermetabolic Inanition','Epidermal Fibrosis','Cellular Regeneration'],
       night:['Nocturnal','Augmented Tapetum','Sustained Hydration','Cellular Regeneration'],
-      small:['Featherweight','Traumatic Thrombosis','Sustained Hydration','Cellular Regeneration']
+      small:['Featherweight','Cellular Regeneration','Sustained Hydration','Epidermal Fibrosis']
     };
 
     const weights={
       bleed:{off:.43,def:.23,sus:.08,mob:.12,util:.14},brawler:{off:.24,def:.42,sus:.18,mob:.05,util:.11},runner:{off:.07,def:.12,sus:.16,mob:.51,util:.14},defender:{off:.08,def:.55,sus:.12,mob:.07,util:.18},aquatic:{off:.10,def:.16,sus:.12,mob:.36,util:.26},climber:{off:.10,def:.12,sus:.10,mob:.34,util:.34},flyer:{off:.05,def:.10,sus:.13,mob:.51,util:.21},apex:{off:.34,def:.39,sus:.12,mob:.06,util:.09},night:{off:.30,def:.10,sus:.10,mob:.10,util:.40},small:{off:.03,def:.20,sus:.13,mob:.43,util:.21}
     };
-    const synergies=[['Hemomania','Accelerated Prey Drive',.34,'Bleed pressure converts naturally into finishing damage.'],['Epidermal Fibrosis','Traumatic Thrombosis',.28,'Strong layered protection against bleed.'],['Hydrodynamic','Increased Inspiratory Capacity',.30,'Swimming speed and oxygen reinforce aquatic control.'],['Hydrodynamic','Submerged Optical Retention',.24,'Aquatic mobility and vision reinforce the same role.'],['Nocturnal','Augmented Tapetum',.36,'Night recovery and night vision reinforce each other.'],['Reinforced Tendons','Multichambered Lungs',.25,'Strong movement and stamina-efficiency pairing.'],['Cellular Regeneration','Gastronomic Regeneration',.25,'Passive and food-triggered healing complement each other.'],['Osteosclerosis','Cellular Regeneration',.20,'Fracture protection plus recovery improves resilience.'],['Reniculate Kidneys','Hydrodynamic',.25,'Coastal access and aquatic mobility form a coherent shoreline build.'],['Cannibalistic','Hematophagy',.18,'Conspecific prey can also provide hydration while feeding.']];
+    const synergies=[['Hemomania','Accelerated Prey Drive',.34,'Bleed pressure converts naturally into finishing damage.'],['Hydrodynamic','Increased Inspiratory Capacity',.30,'Swimming speed and oxygen reinforce aquatic control.'],['Hydrodynamic','Submerged Optical Retention',.24,'Aquatic mobility and vision reinforce the same role.'],['Nocturnal','Augmented Tapetum',.36,'Night recovery and night vision reinforce each other.'],['Reinforced Tendons','Multichambered Lungs',.25,'Strong movement and stamina-efficiency pairing.'],['Cellular Regeneration','Gastronomic Regeneration',.25,'Passive and food-triggered healing complement each other.'],['Osteosclerosis','Cellular Regeneration',.20,'Fracture protection plus recovery improves resilience.'],['Reniculate Kidneys','Hydrodynamic',.25,'Coastal access and aquatic mobility form a coherent shoreline build.'],['Cannibalistic','Hematophagy',.18,'Conspecific prey can also provide hydration while feeding.']];
     const dims=['off','def','sus','mob','util'],dimNames={off:'Offense',def:'Defense',sus:'Sustain',mob:'Mobility',util:'Utility'};
     const growthSteps=[25,35,45,55,65,75,87,100];
 
-export {contexts,mutations,dinos,presets,weights,synergies,dims,dimNames,growthSteps};
+/** Shared conservative eligibility for all site consumers. A slot alone does not imply an unlock was earned.
+ * Official patch 0.21.720 removed Traumatic Thrombosis from new selection.
+ * Diet restrictions for omnivores are community-reported and remain unverified on ORIGIN.
+ */
+const removedMutations=new Set(['Traumatic Thrombosis']);
+function availabilityReason(m,d,sex,slot){
+  if(!m)return 'unknown mutation';
+  if(removedMutations.has(m.n))return 'removed in public patch 0.21.720';
+  if(!Number.isInteger(slot)||!m.slots.includes(slot))return 'slot not supported by available evidence';
+  if(!d)return 'unknown species';
+  const dietOK=m.diet==='Any'||m.diet===d.diet||(m.diet==='Herbivore/Omnivore'&&['Herbivore','Omnivore'].includes(d.diet));
+  if(!dietOK)return 'diet restriction not satisfied (omnivore exceptions remain unverified)';
+  if(m.sex!=='Any'&&m.sex!==sex)return 'sex restriction not satisfied';
+  if(m.n==='Cannibalistic'&&['Deinosuchus','Ceratosaurus'].includes(d.n))return 'species naturally cannibalistic';
+  return '';
+}
+const eligibleMutation=(m,d,sex,slot)=>!availabilityReason(m,d,sex,slot);
+export {contexts,mutations,dinos,presets,weights,synergies,dims,dimNames,growthSteps,removedMutations,availabilityReason,eligibleMutation};
