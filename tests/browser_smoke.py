@@ -308,6 +308,47 @@ try:
         assert mobile.url.split('?')[0].endswith('/index.html')
         assert_no_horizontal_overflow(mobile, 'Calculator return (390px)')
 
+        # Historical legacy save identifiers remain visible, excluded and clearable.
+        historic = {'v': 1, 'd': 'Allosaurus', 'prime': False, 'sex': 'Male', 'growth': 75,
+                    'contexts': [], 'slots': ['Hemomania', 'Traumatic Thrombosis', 'Epidermal Fibrosis', '']}
+        mobile.goto(BASE + '#build=' + quote(json.dumps(historic), safe=''), wait_until='domcontentloaded')
+        assert mobile.locator('#slot2').input_value() == 'Traumatic Thrombosis'
+        assert 'EXCLUDED' in mobile.locator('#slot2 option:checked').inner_text()
+        assert 'Traumatic Thrombosis' in mobile.locator('#customResult').inner_text()
+        mobile.locator('#slot2').select_option('')
+        assert mobile.locator('#slot2').input_value() == ''
+        mobile.locator('[data-tab="mutations"]').click()
+        mobile.locator('#mutationSearch').fill('Traumatic Thrombosis')
+        assert 'REMOVED 0.21.720' in mobile.locator('#mutationList').inner_text()
+        mobile.locator('#mutationList a[href*="sources.html#mutation-traumatic-thrombosis"]').click()
+        assert mobile.url.endswith('/sources.html#mutation-traumatic-thrombosis')
+        assert mobile.locator('#mutation-traumatic-thrombosis').is_visible()
+        assert 'official' in mobile.locator('#mutation-traumatic-thrombosis .evidence-status').inner_text()
+        assert mobile.locator('#mutationEvidence .evidence-entry').count() == 42
+        mobile.locator('#evidenceSearch').fill('Tactile Endurance')
+        assert mobile.locator('#mutationEvidence .evidence-entry').count() == 1
+        assert '2, 4' in mobile.locator('#mutation-tactile-endurance').inner_text()
+        mobile.locator('#evidenceSearch').fill('')
+        mobile.locator('#evidenceStatus').select_option('disputed')
+        assert mobile.locator('#mutationEvidence .evidence-entry').count() >= 1
+        mobile.locator('#evidenceStatus').select_option('all')
+        assert mobile.locator('#calculation-adult-power').is_visible()
+        assert mobile.locator('#calculation-legacy').is_visible()
+        assert mobile.locator('#speciesEvidence tbody tr').count() == 22
+        assert_no_horizontal_overflow(mobile, 'Sources evidence at 390px')
+        assert_readable_content(mobile, '.evidence-main h2, .evidence-main h3, .evidence-main p, .evidence-main a')
+        mobile.screenshot(path=str(ARTIFACTS / 'sources-390.png'), full_page=True)
+        page.goto(BASE + 'sources.html', wait_until='domcontentloaded')
+        assert page.locator('#mutationEvidence .evidence-entry').count() == 42
+        assert_no_horizontal_overflow(page, 'Sources at 1280px')
+        page.screenshot(path=str(ARTIFACTS / 'sources-desktop.png'), full_page=True)
+        page.goto(BASE, wait_until='domcontentloaded')
+        assert page.locator('a.snapshot-chip[href="./sources.html"]').is_visible()
+        page.locator('a.snapshot-chip').focus()
+        page.keyboard.press('Enter')
+        assert page.url.endswith('/sources.html'), 'Snapshot must be keyboard navigable'
+        print('Source navigation, desktop/mobile evidence and historical-save checks verified', flush=True)
+
         assert not errors, errors
         print('Chromium browser smoke and 390px checks: PASS', flush=True)
         mobile.close()
