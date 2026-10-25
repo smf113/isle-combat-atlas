@@ -6,9 +6,10 @@ import {mutations,dinos,removedMutations} from './data.js';
 import {ENTOMB_TIERS} from './entomb-model.js';
 export const snapshotDate='September 2026';
 export const reviewDate='October 25, 2026';
-export const branchScope='The Isle EVRIMA public branch (0.21.720 removal; references through 0.21.772); ORIGIN custom server behavior not independently verified';
+export const branchScope='The Isle EVRIMA public branch; latest publicly confirmed patch in this review: 0.21.772 (August 4, 2026). Server-specific overrides and patch parity remain unverified.';
 export const slug=name=>'mutation-'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 export const sources={
+ official772:{title:'Patch 0.21.772 is now available!',publisher:'Afterthought Studios / The Isle',type:'Official patch announcement',date:'August 4, 2026',access:reviewDate,url:'https://steamcommunity.com/ogg/376210/announcements/detail/717912016810936297',scope:'EVRIMA Public Branch 0.21.772, not custom-server configuration',claim:'0.21.772 is a published public-branch patch; includes Austroraptor and changes to playable physics. Does not establish mutation percentages or model-derived combat values.',status:'official'},
  official720:{title:'Patch 0.21.720 Now Available!',publisher:'Afterthought Studios / The Isle',type:'Official patch announcement',date:'July 3, 2026',access:reviewDate,url:'https://steamcommunity.com/games/TheIsle/announcements/detail/679628250084806361',scope:'EVRIMA public branch 0.21.720',claim:'Traumatic Thrombosis removed for future reintegration',status:'official'},
  officialEntomb:{title:'Patch 0.21.321 — Entomb introduction',publisher:'Afterthought Studios / The Isle',type:'Official patch announcement',date:'December 23, 2025',access:reviewDate,url:'https://steamcommunity.com/games/TheIsle/announcements/detail/507348444540569207',scope:'Public branch; Steam detail only partially retrievable here',claim:'Entomb feature introduction; full article text not independently retrieved',status:'unverified'},
  quick:{title:'Evrima Quick Guide — Mutations',publisher:'Evrima Quick Guide',type:'Community guide',date:'Undated; site warns information may be outdated',access:reviewDate,url:'https://www.evrimaquickguide.com/gameplay/health-statuses/mutations',scope:'Community description; not ORIGIN-verified',claim:'Mutation categories, several slot constraints, life tiers and nesting distinction',status:'community-reported'},
@@ -39,6 +40,7 @@ export const mutationEvidence=mutations.map(m=>{
   };
 });
 export const modelEvidence=[
+ {id:'public-patch',label:'Public-branch release scope',expression:'EVRIMA Public Branch patch 0.21.772 (August 2026)',status:'official',refs:['official772'],description:'This patch was officially announced. It does not verify every catalog mutation, estimated dinosaur mass or PvP formula at this patch level.'},
  {id:'ranking',label:'Solo ranking',expression:'14 × solo + 6 × threat',status:'model-assumption',refs:['snapshot'],description:'1–5 solo and threat ratings are authored judgments, not measured win rates.'},
  {id:'adult-power',label:'Adult combat pressure',expression:'16 + 8 × log₂(kg + 20) + 11 × threat + 2 × solo',status:'model-assumption',refs:['snapshot'],description:'Reference masses (kg), solo and threat scores come from data.js; not verified health or attack-damage telemetry.'},
  {id:'species-inputs',label:'Species data',expression:'22 rows: kg, solo, threat, favored and danger lists',status:'model-assumption',refs:['snapshot'],description:'Each listed species mass and preferred/opponent matchup is an estimate. Source-specific data are not game telemetry.'},
