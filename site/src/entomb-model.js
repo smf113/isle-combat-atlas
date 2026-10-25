@@ -71,7 +71,7 @@ export function capacityAt(lives,generation){
   const gen=normalizeGeneration(generation),from=Math.max(1,gen-3);
   return Math.min(MAX_MUTATIONS,lives.slice(from-1,gen).reduce((sum,l)=>sum+(l?.prime?4:3),0));
 }
-export function lineageFit(rows,d,generation,enabledContexts=[],capacity=16){
+export function lineageFit(rows,d,generation,enabledContexts=[],capacity=16,sex='Male'){
   const ctx=new Set(enabledContexts),w=weights[d.arch],names=rows.map(r=>r.name);
   const value=name=>{
     const m=byName(name);if(!m)return 0;
@@ -83,7 +83,7 @@ export function lineageFit(rows,d,generation,enabledContexts=[],capacity=16){
   };
   const measured=names.map(value).sort((a,b)=>b-a);
   const discount=(list)=>list.reduce((s,v,i)=>s+v*Math.pow(.95,i),0);
-  const eligibleNames=mutations.filter(m=>[1,2,3,4].some(slot=>eligibleMutation(m,d,'Male',slot)||eligibleMutation(m,d,'Female',slot))).map(m=>m.n);
+  const eligibleNames=mutations.filter(m=>[1,2,3,4].some(slot=>eligibleMutation(m,d,sex,slot))).map(m=>m.n);
   const benchmark=eligibleNames.map(value).sort((a,b)=>b-a).slice(0,capacity);
   const synergy=synergies.reduce((sum,[a,b,boost])=>sum+(names.includes(a)&&names.includes(b)?boost:0),0);
   const raw=discount(measured)+synergy,ceiling=Math.max(1,discount(benchmark));
