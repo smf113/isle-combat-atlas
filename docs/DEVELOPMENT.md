@@ -27,8 +27,8 @@ Implemented on branch:
 Validation evidence and limits:
 - Previous v1.1.0 Pages run [40215623954](https://github.com/smf113/isle-combat-atlas/actions/runs/40215623954): **passed on `main` before this session**.
 - New Node test suite succeeded in workflow [40226185615](https://github.com/smf113/isle-combat-atlas/actions/runs/40226185615); that run's Chromium stage did **not complete**, due to an automatic cancellation triggered by subsequent commits during slow system dependency installation.
-- Newest-commit CI and Chromium results, full mobile validation and user acceptance are **not yet verified**. Do not mark release/PR ready until verified.
-- Browser regression has new profile-switching and 390px assertions, but its execution must be confirmed; static assertions are not substitutes.
+- **Branch head `f84c0b0aa49d5ffe358e2efc716d2d36abb9581a` passed CI** in [run 40226564880](https://github.com/smf113/isle-combat-atlas/actions/runs/40226564880): 57/57 Node tests, Chromium browser smoke, 390px viewport geometry, source navigation and historical save/lineage checks. New profile-switch tests passed in that real Chromium run.
+- This checkpoint-only update has a newer head and will also require current-head CI confirmation before PR review. Browser-based validation on mobile Safari and user environment is **still unverified**; do not equate headless 390px Chromium with iOS acceptance.
 - No independent live-game validation of 22 historical masses, role scores, individual mutation effects, Prime curve or ORIGIN combat overrides. Those remain explicitly documented as estimated/unverified.
 
-Next: inspect latest PR CI for actual head commit; fix any regression or documentation drift found, perform user acceptance with browser, reconcile [Workbench release register #49](https://github.com/smf113/Workbench/issues/49), then request explicit PR review/merge authorization. Map and UI cleanup remain later phases.
+Next: verify CI for the final PR head, obtain user validation (especially mobile Safari and profile/URL behavior), reconcile [Workbench release register #49](https://github.com/smf113/Workbench/issues/49), then request explicit PR review/merge authorization. Map and UI cleanup remain later phases.
