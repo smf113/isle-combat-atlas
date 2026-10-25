@@ -19,7 +19,7 @@ See [Entomb modeling notes](docs/ENTOMB_NOTES.md) for sourcing, caveats, mutatio
 - Expanded mutation glossary including situational options (Cannibalistic, Reniculate Kidneys etc.)
 - Saves the current build **locally in the current browser**; **Copy shareable build link** transfers settings across devices
 
-**Important:** This is a heuristic snapshot, not live match data, official game information or an ORIGIN integration. Scores are relative *role fit*, not win probability. See [methodology](site/methodology.html) and [data notes](docs/DATA_NOTES.md).
+**Important:** This is a heuristic snapshot, not live match data, verified game balance information or a connection to any game server. Scores are relative *role fit*, not win probability. See [methodology](site/methodology.html) and [data notes](docs/DATA_NOTES.md).
 
 ## Run locally
 
