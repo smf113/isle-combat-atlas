@@ -14,8 +14,21 @@
 - Preserve historical mutation selections, shared eligibility, build/Entomb/matchup saved states and share links. Unknown server-specific mutation exceptions must remain unverified, not assumed.
 - Record test evidence and documentation/version reconciliation before calling a release ready. [Workbench #49](https://github.com/smf113/Workbench/issues/49) owns the review register. Map and UI cleanup are future independent phases.
 
-## Development checkpoint
+## Development checkpoint — October 25, 2026
 
-State: active implementation branch; inherited v1.1.0 code is **not** introduced by this PR.
-Current validation: existing v1.1.0 Pages CI passed; **new changes not yet validated** at session start.
-Immediate next: implement profile resolver, official-first presentation, evidence applicability, documentation/version test guard; run Node + Chromium tests; review outstanding unknowns.
+State: active implementation **draft PR #6**, built on the inherited v1.1.0 baseline already on `main`. Proposed application version **v1.2.0**, not a released/default-branch version.
+
+Implemented on branch:
+- Official EVRIMA public branch is the default in header, rankings and growth framing. ORIGIN Main and ORIGIN Voice Chat are optional, explicitly sourced server-profile overlays without invented damage or mutation overrides.
+- Profile choice is browser-persistent; new share links carry `?server=` while existing `#build=`, `#lineage=` and `#matchup=` payload formats remain unchanged.
+- Evidence registry includes sourced 0.21.772 public patch; Sources page displays selected profile and per-mutation uncertainty. Original September snapshot and October 25 evidence-review dates are intentionally distinct.
+- App/changelog/README/methodology/data notes updated; tests enforce matching package/footer/changelog/Sources/README versions, including deliberate negative cases. Remaining misleading ORIGIN-only copy was reconciled.
+
+Validation evidence and limits:
+- Previous v1.1.0 Pages run [40215623954](https://github.com/smf113/isle-combat-atlas/actions/runs/40215623954): **passed on `main` before this session**.
+- New Node test suite succeeded in workflow [40226185615](https://github.com/smf113/isle-combat-atlas/actions/runs/40226185615); that run's Chromium stage did **not complete**, due to an automatic cancellation triggered by subsequent commits during slow system dependency installation.
+- Newest-commit CI and Chromium results, full mobile validation and user acceptance are **not yet verified**. Do not mark release/PR ready until verified.
+- Browser regression has new profile-switching and 390px assertions, but its execution must be confirmed; static assertions are not substitutes.
+- No independent live-game validation of 22 historical masses, role scores, individual mutation effects, Prime curve or ORIGIN combat overrides. Those remain explicitly documented as estimated/unverified.
+
+Next: inspect latest PR CI for actual head commit; fix any regression or documentation drift found, perform user acceptance with browser, reconcile [Workbench release register #49](https://github.com/smf113/Workbench/issues/49), then request explicit PR review/merge authorization. Map and UI cleanup remain later phases.
