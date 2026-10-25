@@ -1,5 +1,5 @@
 /** Browser application controller. Keeps gameplay data separate in data.js. */
-import {contexts,mutations,dinos,presets,weights,synergies,dims,dimNames,growthSteps,eligibleMutation,availabilityReason,removedMutations} from './data.js';
+import {contexts,mutations,dinos,weights,synergies,dims,dimNames,growthSteps,eligibleMutation,availabilityReason,removedMutations} from './data.js';
 import {standardPicks} from './matchup-model.js';
 
   (()=>{
