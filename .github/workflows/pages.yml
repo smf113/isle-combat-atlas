@@ -1,7 +1,7 @@
 name: Deploy static site to GitHub Pages
 on:
   push:
-    branches: [main, feat/official-evrima-profiles-evidence-20261025] # TEMPORARY: user-approved live review without merging PR #6
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -10,7 +10,7 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: pages-${{ github.event_name }} # TEMPORARY: prevent PR verification cancelling live-review push deployment
+  group: pages
   cancel-in-progress: true
 jobs:
   verify:
