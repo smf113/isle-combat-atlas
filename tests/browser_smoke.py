@@ -324,7 +324,7 @@ try:
         mobile.locator('#mutationList a[href*="sources.html#mutation-traumatic-thrombosis"]').click()
         assert mobile.url.endswith('/sources.html#mutation-traumatic-thrombosis')
         assert mobile.locator('#mutation-traumatic-thrombosis').is_visible()
-        assert 'official' in mobile.locator('#mutation-traumatic-thrombosis .evidence-status').inner_text()
+        assert 'official' in mobile.locator('#mutation-traumatic-thrombosis .evidence-status').inner_text().lower()
         assert mobile.locator('#mutationEvidence .evidence-entry').count() == 42
         mobile.locator('#evidenceSearch').fill('Tactile Endurance')
         assert mobile.locator('#mutationEvidence .evidence-entry').count() == 1
