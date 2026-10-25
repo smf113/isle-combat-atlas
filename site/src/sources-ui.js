@@ -1,0 +1,17 @@
+import {mutationEvidence,modelEvidence,speciesEvidence,sources,snapshotDate,reviewDate,branchScope} from './evidence.js';
+const $=s=>document.querySelector(s),safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sourceLinks=refs=>refs.map(key=>{const s=sources[key];return `<a href="#source-${safe(key)}">${safe(s.title)} (${safe(s.publisher)}; ${safe(s.date)}; accessed ${safe(s.access)})</a>`;}).join('; ');
+$('#snapshotDate').textContent=snapshotDate;$('#reviewDate').textContent=reviewDate;$('#branchScope').textContent=branchScope;
+function drawMutations(){
+ const query=$('#evidenceSearch').value.trim().toLowerCase(),status=$('#evidenceStatus').value;
+ const filtered=mutationEvidence.filter(m=>(status==='all'||status===m.status)&&[m.name,m.claim,m.slot,m.diet,m.caveat,m.status].join(' ').toLowerCase().includes(query));
+ $('#evidenceCount').textContent=`${filtered.length} of ${mutationEvidence.length} mutation evidence records`;
+ $('#mutationEvidence').innerHTML=filtered.map(m=>`<article class="evidence-entry" id="${safe(m.id)}"><div class="evidence-title"><h3>${safe(m.name)}</h3><a href="#${safe(m.id)}" aria-label="Link to ${safe(m.name)} evidence">#</a></div><p class="evidence-status">${safe(m.status)}</p><p>${safe(m.claim)}</p><p><strong>Slots:</strong> ${safe(m.slot)} · <strong>Diet:</strong> ${safe(m.diet)} · <strong>Sex:</strong> ${safe(m.sex)}</p>${m.tier?`<p><strong>Community Entomb tiers:</strong> ${m.tier.map(safe).join(' / ')}</p>`:''}<p><strong>Applicability:</strong> ${safe(m.caveat)}</p><p class="evidence-source"><strong>References:</strong> ${sourceLinks(m.references)}</p></article>`).join('');
+}
+$('#evidenceSearch').addEventListener('input',drawMutations);$('#evidenceStatus').addEventListener('change',drawMutations);drawMutations();
+$('#calculationEvidence').innerHTML=modelEvidence.map(e=>`<article class="evidence-entry" id="calculation-${safe(e.id)}"><h3>${safe(e.label)}</h3><p class="evidence-status">${safe(e.status)}</p><code class="evidence-formula">${safe(e.expression)}</code><p>${safe(e.description)}</p><p class="evidence-source"><strong>References:</strong> ${sourceLinks(e.refs)}</p></article>`).join('');
+$('#speciesEvidence tbody').innerHTML=speciesEvidence.map(d=>`<tr><th scope="row">${safe(d.name)}</th><td>${safe(d.kg)}</td><td>${safe(d.solo)}</td><td>${safe(d.threat)}</td><td>${safe(d.fav.join(', ')||'None')}</td><td>${safe(d.danger.join(', ')||'None')}</td></tr>`).join('');
+$('#referenceDirectory').innerHTML=Object.entries(sources).map(([key,s])=>`<article class="evidence-entry" id="source-${safe(key)}"><h3>${safe(s.title)}</h3><p class="evidence-status">${safe(s.status)} · ${safe(s.type)}</p><p><strong>Publisher:</strong> ${safe(s.publisher)} · <strong>Publication:</strong> ${safe(s.date)} · <strong>Access:</strong> ${safe(s.access)}</p><p><strong>Supported claim:</strong> ${safe(s.claim)}</p><p><strong>Applicability:</strong> ${safe(s.scope)}</p><a href="${safe(s.url)}" rel="noopener noreferrer" target="_blank">Open source</a></article>`).join('');
+// Filtering preserves deep-link usability: show the targeted record even if prior filters would hide it.
+function revealHash(){const id=decodeURIComponent(location.hash.slice(1));if(id.startsWith('mutation-')){$('#evidenceSearch').value='';$('#evidenceStatus').value='all';drawMutations();}if(id){const item=document.getElementById(id);if(item)item.scrollIntoView({block:'start'});}}
+window.addEventListener('hashchange',revealHash);revealHash();

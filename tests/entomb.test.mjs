@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {dinos} from '../site/src/data.js';
-import {emptyLineage,activeAt,capacityAt,blankLife,eligible,tierEffect,lineageFit,ENTOMB_TIERS,MAX_MUTATIONS} from '../site/src/entomb-model.js';
+import {emptyLineage,activeAt,capacityAt,blankLife,eligible,tierEffect,lineageFit,ENTOMB_TIERS,MAX_MUTATIONS,byName} from '../site/src/entomb-model.js';
 const d=dinos.find(x=>x.n==='Allosaurus');
 test('entomb keeps distinct old picks and increases tier only to life three',()=>{
  const x=emptyLineage();x[0]={prime:true,picks:['Hemomania','Epidermal Fibrosis','Cellular Regeneration','Osteosclerosis']};
@@ -32,7 +32,7 @@ test('picks cannot stack duplicate names, even if repeated in a later life',()=>
 });
 test('mutation restrictions include special slot four and removed mutation',()=>{
  assert.equal(eligible({n:'Traumatic Thrombosis',slots:[2],diet:'Any',sex:'Any',cat:'Slot 2'},d,'Male',2),false);
- assert.equal(eligible({n:'Gastronomic Regeneration',slots:[2],diet:'Any',sex:'Any',cat:'Slot 2'},d,'Male',4),true);
+ assert.equal(eligible(byName('Gastronomic Regeneration'),d,'Male',4),true);
 });
 test('known tier data is monotonic and relative fit remains bounded',()=>{
  for(const [name,values] of Object.entries(ENTOMB_TIERS)){assert.equal(values.length,3,name);assert.ok(values[0]>0);assert.ok(values[1]>=values[0]);assert.ok(values[2]>=values[1]);}
