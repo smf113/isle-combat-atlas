@@ -92,3 +92,13 @@ For later releases: update `package.json` version, the footer version in `site/i
 ### Fight-condition behavior (October 25, 2026)
 
 Fight circumstance checkboxes do not impose generic injury penalties on the ratio. Instead, **B bleeding** triggers A's active Hemomania and **A bleeding** triggers B's; **B below 35% health** triggers A's active Accelerated Prey Drive and **A below 35% health** triggers B's. When the relevant mutation is absent or not active, the checkbox is stored but the relative pressure index remains unchanged. The calculator displays an explanation for each selected condition; new Node and real Chromium tests check this. This is a UI clarity and validation release, not a gameplay-data or formula update.
+
+## Source accuracy and evidence review — October 25, 2026 (v1.1.0)
+
+Visit [Sources & Methodology](site/sources.html) for searchable per-mutation evidence, source type, publication and review dates, unresolved applicability, historic removals, and a traceable model walkthrough. Original gameplay snapshot remains **September 2026**; latest evidence review is **October 25, 2026**. This is not a claimed ORIGIN server content refresh.
+
+Official 0.21.720 removes Traumatic Thrombosis from new choices. Its historical identifier remains loadable but is excluded from the legacy Custom Build, Entomb and matchup scores. Eligibility now uses a shared explicit slot/diet/sex/availability rule for all consumers; Gastronomic Regeneration, Hypermetabolic Inanition and Tactile Endurance are community-supported in slots 2 and 4; no blanket slot-4 unlock extension. All role presets that referenced removed content have legal alternatives. Eligibility and scoring candidate pools may change build-fit scores, even though the formula and author-created coefficients were not recalibrated.
+
+Do not infer that mutation percentage citations validate combat ratings. Species mass, 1–5 solo/threat, favored/danger lists, interpolation, counter coefficients, multiplicative stacking and victory categories are authored heuristics. The current model Prime peak at 87% differs from a community elder reference's 87.5%; the normal curve still rises to 100% contrary to a reported late decline. Applicability not established; no curve change in this release. Consult in-game state before relying on unlock counts or ORIGIN-specific exceptions.
+
+For subsequent releases, update `package.json`, footer version in `site/index.html`, latest entry in `site/changelog.html`, and `site/sources.html` software version only; do not modify `evidence.js` snapshot date without a genuine underlying data review.
