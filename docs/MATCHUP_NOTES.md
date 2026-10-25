@@ -34,3 +34,7 @@
 - "Import current Entomb Planner" copies a detached snapshot from the in-memory planner state, including restored initial `#lineage=` URLs and subsequent hash changes. It does **not** trust a potentially stale local-storage cache and does not modify the planner or the other matchup side.
 - Editing custom mutations excludes already selected names from other dropdowns. Invalid shared or previously saved selections remain visible by name in a warning and do **not** count towards scoring. The model continues to validate duplicates and eligibility independently of the interface.
 - The A-versus-fixed-B growth progression adds **50%** alongside all existing rows, displaying the approximate second-slot unlock. No score calibration was changed.
+
+## Evidence transparency — October 25, 2026
+
+The [Sources & Methodology page](../site/sources.html) documents exact implemented matchup coefficients, subjective species data, conditional mutation sources, multiplicative modeling and the separate older ladder. The snapshot remains September 2026, not the review date. Favorable/danger modifiers (1.12/0.86), Prime and growth curves, adult-power terms, favored threshold 1.2, clamp and logarithmic marker mapping are assumptions, not game data. Current Prime peak at 87% differs from a community 87.5% guide and normal growth-to-100% conflicts with a reported frail decline. Both await applicability verification and remain unchanged.
