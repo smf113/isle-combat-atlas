@@ -10,7 +10,7 @@ import subprocess
 import time
 from pathlib import Path
 from urllib.parse import quote
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = 'http://127.0.0.1:8765/'
@@ -323,24 +323,25 @@ try:
         assert 'REMOVED 0.21.720' in mobile.locator('#mutationList').inner_text()
         mobile.locator('#mutationList a[href*="sources.html#mutation-traumatic-thrombosis"]').click()
         assert mobile.url.endswith('/sources.html#mutation-traumatic-thrombosis')
-        assert mobile.locator('#mutation-traumatic-thrombosis').is_visible()
+        # A module script populates evidence after DOMContentLoaded; assert with auto-wait, not an immediate sample.
+        expect(mobile.locator('#mutation-traumatic-thrombosis')).to_be_visible(timeout=15000)
         assert 'official' in mobile.locator('#mutation-traumatic-thrombosis .evidence-status').inner_text().lower()
-        assert mobile.locator('#mutationEvidence .evidence-entry').count() == 42
+        expect(mobile.locator('#mutationEvidence .evidence-entry')).to_have_count(42, timeout=15000)
         mobile.locator('#evidenceSearch').fill('Tactile Endurance')
-        assert mobile.locator('#mutationEvidence .evidence-entry').count() == 1
+        expect(mobile.locator('#mutationEvidence .evidence-entry')).to_have_count(1)
         assert '2, 4' in mobile.locator('#mutation-tactile-endurance').inner_text()
         mobile.locator('#evidenceSearch').fill('')
         mobile.locator('#evidenceStatus').select_option('disputed')
-        assert mobile.locator('#mutationEvidence .evidence-entry').count() >= 1
+        expect(mobile.locator('#mutationEvidence .evidence-entry').first).to_be_visible()
         mobile.locator('#evidenceStatus').select_option('all')
-        assert mobile.locator('#calculation-adult-power').is_visible()
-        assert mobile.locator('#calculation-legacy').is_visible()
-        assert mobile.locator('#speciesEvidence tbody tr').count() == 22
+        expect(mobile.locator('#calculation-adult-power')).to_be_visible()
+        expect(mobile.locator('#calculation-legacy')).to_be_visible()
+        expect(mobile.locator('#speciesEvidence tbody tr')).to_have_count(22)
         assert_no_horizontal_overflow(mobile, 'Sources evidence at 390px')
         assert_readable_content(mobile, '.evidence-main h2, .evidence-main h3, .evidence-main p, .evidence-main a')
         mobile.screenshot(path=str(ARTIFACTS / 'sources-390.png'), full_page=True)
         page.goto(BASE + 'sources.html', wait_until='domcontentloaded')
-        assert page.locator('#mutationEvidence .evidence-entry').count() == 42
+        expect(page.locator('#mutationEvidence .evidence-entry')).to_have_count(42, timeout=15000)
         assert_no_horizontal_overflow(page, 'Sources at 1280px')
         page.screenshot(path=str(ARTIFACTS / 'sources-desktop.png'), full_page=True)
         page.goto(BASE, wait_until='domcontentloaded')
@@ -348,6 +349,7 @@ try:
         page.locator('a.snapshot-chip').focus()
         page.keyboard.press('Enter')
         page.wait_for_url('**/sources.html')
+        expect(page.locator('#mutationEvidence .evidence-entry')).to_have_count(42, timeout=15000)
         assert page.url.endswith('/sources.html'), 'Snapshot must be keyboard navigable'
         print('Source navigation, desktop/mobile evidence and historical-save checks verified', flush=True)
 
