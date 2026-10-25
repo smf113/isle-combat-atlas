@@ -39,10 +39,10 @@
       M('Wader','Lifecycle','Any',[1,2,3,4],'25% less movement penalty in shallow water.',{off:0,def:0,sus:0,mob:4,util:3},{tags:['Circumstantial','Mobility'],ctx:{aquatic:4,coastal:3}}),
       M('Xerocole Adaptation','Lifecycle','Herbivore',[1,2,3,4],'Eating plants restores some water.',{off:0,def:0,sus:4,mob:1,util:1},{tags:['Survival']}),
 
-      M('Tactile Endurance','Slot 2','Herbivore',[2,4],'Converts incoming damage pressure into stamina pressure.',{off:0,def:5,sus:2,mob:1,util:3},{tags:['Combat','Survival']}),
-      M('Traumatic Thrombosis','Slot 2','Any',[2],'Prevents death from blood loss while resting.',{off:0,def:5,sus:3,mob:0,util:3},{tags:['Combat','Survival']}),
-      M('Gastronomic Regeneration','Slot 2','Any',[2,4],'Eating restores a small amount of health.',{off:0,def:3,sus:5,mob:0,util:2},{tags:['Survival']}),
-      M('Hypermetabolic Inanition','Slot 2','Carnivore',[2,4],'Damage increases as hunger decreases.',{off:5,def:0,sus:0,mob:0,util:2},{tags:['Combat']}),
+      M('Tactile Endurance','Restricted','Herbivore',[2,4],'Converts incoming damage pressure into stamina pressure.',{off:0,def:5,sus:2,mob:1,util:3},{tags:['Combat','Survival']}),
+      M('Traumatic Thrombosis','Removed','Any',[2],'Prevents death from blood loss while resting.',{off:0,def:5,sus:3,mob:0,util:3},{tags:['Combat','Survival']}),
+      M('Gastronomic Regeneration','Restricted','Any',[2,4],'Eating restores a small amount of health.',{off:0,def:3,sus:5,mob:0,util:2},{tags:['Survival']}),
+      M('Hypermetabolic Inanition','Restricted','Carnivore',[2,4],'Damage increases as hunger decreases.',{off:5,def:0,sus:0,mob:0,util:2},{tags:['Combat']}),
 
       M('Augmented Tapetum','Unlockable','Carnivore',[2],'Increases night-vision range.',{off:2,def:1,sus:0,mob:0,util:4},{tags:['Circumstantial','Unlockable'],ctx:{night:7},unlock:'Kill 5 players at night.'}),
       M('Enhanced Digestion','Unlockable','Any',[2,3],'Decreases nutrition-decay rate.',{off:0,def:0,sus:4,mob:1,util:2},{tags:['Survival','Unlockable'],unlock:'Maintain nutrients for 60 minutes.'}),
