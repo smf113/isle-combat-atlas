@@ -1,5 +1,6 @@
 /** Independent 1v1 calculator: shareable A/B builds with Entomb lineage imports. */
 import {dinos,mutations,presets} from './data.js';
+import {shareUrlWithProfile} from './profiles.js';
 import {eligible,tierEffect,MAX_GENERATION,normalizeGeneration} from './entomb-model.js';
 import {DEFAULT_SIDE,SCENARIO_DEFAULT,calculateMatchup,compareAcrossGrowth,extractLineageLink,normalizeLineage,validLineage,SLOT_GROWTH,standardPicks,advantagePosition} from './matchup-model.js';
 
@@ -160,7 +161,7 @@ if(root&&panel){
     if(e.target.closest('#matchupSwap')){[state.a,state.b]=[state.b,state.a];state.scenario={...state.scenario,aBleeding:state.scenario.bBleeding,bBleeding:state.scenario.aBleeding,aLowHealth:state.scenario.bLowHealth,bLowHealth:state.scenario.aLowHealth};info='Sides swapped.';persistRender();return;}
     if(e.target.closest('#matchupReset')){state=defaults();info='Calculator reset.';persistRender();return;}
     if(e.target.closest('#matchupShare')){
-      const url=location.href.split('#')[0]+'#matchup='+encodeURIComponent(JSON.stringify(state));
+      const url=shareUrlWithProfile('matchup='+encodeURIComponent(JSON.stringify(state)));
       try{await navigator.clipboard.writeText(url);info='Matchup link copied. Both dinosaur builds and lineage generations are included.';$('#matchupShareFallback').classList.add('hidden');}
       catch{const fallback=$('#matchupShareFallback');fallback.value=url;fallback.classList.remove('hidden');fallback.focus();fallback.select();info='Copy the matchup link in the field below.';}
       $('#matchupStatus').textContent=info;
