@@ -437,7 +437,7 @@ try:
                     for tab in ['mutations', 'rankings', 'builds']:
                         shot.locator('[data-tab="'+tab+'"]').click()
                         assert_no_horizontal_overflow(shot, phase+' '+tab+' (390px)')
-                        shot.evaluate('window.scrollTo(0, 0)')
+                        shot.locator('#tab-'+tab).evaluate('(el) => window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY)')
                         shot.screenshot(path=str(ARTIFACTS / (phase+'-'+tab+'-390.png')), full_page=False)
                     if phase == 'after':
                         for tab in ['rankings','builds','custom','entomb','growth','mutations']:
@@ -453,6 +453,9 @@ try:
                         expect(shot.locator('#mutationList .mutation-card')).to_have_count(41)
                         shot.locator('#mutationSearch').fill('Tactile Endurance')
                         assert 'Slots 2, 4' in shot.locator('#mutationList').inner_text()
+                        shot.locator('#mutationSearch').fill('Augmented Tapetum')
+                        assert 'Kill players at night' in shot.locator('#mutationList').inner_text()
+                        assert 'Kill 5' not in shot.locator('#mutationList').inner_text()
                         shot.locator('#mutationSpecies').select_option('Gallimimus')
                         shot.locator('#mutationSearch').fill('Tactile Endurance')
                         expect(shot.locator('#mutationList .mutation-card')).to_have_count(0)

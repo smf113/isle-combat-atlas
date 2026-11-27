@@ -74,6 +74,7 @@ if(root&&panel){
       state.lives.slice(Math.max(0,state.generation-4),state.generation).some(l=>l.picks.some((n,i)=>n&&availabilityReason(byName(n),d,state.sex,i+1)))?'<span class="lineage-warning">Excluded selections</span>':'',
       lineage.duplicates.length?`<span class="lineage-warning">${lineage.duplicates.length} duplicate selections excluded</span>`:''
     ].filter(Boolean).map(s=>`<p>${s}</p>`).join('');
+    if($('#entombNotes').innerHTML)$('#entombNotes').innerHTML='<div class="section-title mt-4">Lineage changes</div>'+$('#entombNotes').innerHTML;
     
     $('#entombDimensions').innerHTML=dims.map(k=>{const v=metrics.stats[k],max=Math.max(1,...dims.map(x=>metrics.stats[x]));return `<div class="metric"><span>${esc(dimNames[k])}</span><span class="metric-track"><span class="metric-fill block" style="width:${Math.min(100,Math.round(v/max*100))}%"></span></span><strong>${v.toFixed(1)}</strong></div>`}).join('');
     $('#entombShareStatus').textContent='';

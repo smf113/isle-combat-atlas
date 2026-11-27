@@ -47,8 +47,8 @@ test('Prime remains controllable on unmutated baseline and only becomes active a
  const ui=await harness();
  ui.change('a','prime',true);ui.change('a','source','none');
  assert.match(ui.markup('A'),/data-field="prime"[^>]*checked/);
- ui.change('a','growth',74);assert.match(ui.markup('A'),/Prime intended; inactive at this growth/);
- ui.change('a','growth',75);assert.match(ui.markup('A'),/Prime intended; active now/);
+ ui.change('a','growth',74);assert.match(ui.markup('A'),/Prime: inactive/);
+ ui.change('a','growth',75);assert.match(ui.markup('A'),/Prime: active now/);
  ui.change('a','source','manual');ui.change('a','source','none');
  assert.equal(ui.snap().a.prime,true);
 });
@@ -77,7 +77,7 @@ test('subsequent shared hash restoration and independent A/B lineage imports',as
 test('custom duplicate exclusions appear while occupied mutations are omitted from other dropdowns',async()=>{
  const prior={v:1,a:{dino:'Allosaurus',growth:100,prime:false,sex:'Male',source:'manual',manual:['Hemomania','Hemomania','Unknown Mutation','Cellular Regeneration']},b:{dino:'Ceratosaurus',source:'standard'},scenario:{}};
  const ui=await harness({stored:{[key]:JSON.stringify(prior)}});
- assert.match(ui.markup('A'),/Excluded selections \(not counted\)/);
+ assert.match(ui.markup('A'),/Excluded selections:/);
  assert.match(ui.markup('A'),/duplicate mutation/);
  assert.match(ui.markup('A'),/unknown mutation/);
  assert.match(ui.markup('A'),/requires Prime/);
