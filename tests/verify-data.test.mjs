@@ -10,7 +10,7 @@ test('the full roster remains intact and unique',()=>{
 test('mutations are unique, slot-bounded and context-safe',()=>{
   assert.ok(mutations.length>=20);
   assert.equal(new Set(mutations.map(m=>m.n)).size,mutations.length);
-  for(const m of mutations){assert.ok(m.slots.length);assert.ok(m.slots.every(x=>Number.isInteger(x)&&x>=1&&x<=4));for(const k of Object.keys(m.ctx))assert.ok(Object.hasOwn(contexts,k),`${m.n}: ${k}`);}
+  for(const m of mutations){assert.ok(m.slots.length||m.cat==='Removed');assert.ok(m.slots.every(x=>Number.isInteger(x)&&x>=1&&x<=4));for(const k of Object.keys(m.ctx))assert.ok(Object.hasOwn(contexts,k),`${m.n}: ${k}`);}
 });
 test('presets only refer to known mutations and have four entries',()=>{
   const known=new Set(mutations.map(m=>m.n));

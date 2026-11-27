@@ -8,8 +8,8 @@ import {sources,mutationEvidence,modelEvidence,slug,snapshotDate,reviewDate} fro
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const d=dinos.find(d=>d.n==='Allosaurus');
 test('retained historical mutation is excluded everywhere and never recommended',()=>{
- assert.equal(mutations.length,42);assert.equal(mutationEvidence.length,42);
- assert.equal(new Set(mutations.map(x=>x.n)).size,42);
+ assert.equal(mutations.length,43);assert.equal(mutationEvidence.length,43);
+ assert.equal(new Set(mutations.map(x=>x.n)).size,43);
  const removed=byName('Traumatic Thrombosis');assert.ok(removed);assert.ok(removedMutations.has(removed.n));
  for(const species of dinos)for(const sex of ['Male','Female'])for(const slot of [1,2,3,4]){
    assert.equal(eligibleMutation(removed,species,sex,slot),false);assert.equal(eligible(removed,species,sex,slot),false);
@@ -30,7 +30,8 @@ test('documented slot 2 and 4 choices and conservative unlock restrictions',()=>
  for(const name of ['Augmented Tapetum','Heightened Ghrelin','Parthenogenesis','Prolific Reproduction']){
   assert.deepEqual(byName(name).slots,[2]);assert.equal(eligibleMutation(byName(name),d,'Female',4),false);
  }
- for(const name of ['Pit Organ','Paratrepsis','Cochlear Sensitivity','Intraspecific Aggression'])assert.equal(byName(name),undefined);
+ for(const name of ['Pit Organ','Paratrepsis','Cochlear Sensitivity'])assert.equal(byName(name),undefined);
+ assert.ok(removedMutations.has('Intraspecific Aggression'));
 });
 test('legacy and Entomb keep excluded historical selections visible',()=>{
  const app=read('site/src/app.js'),entomb=read('site/src/entomb-ui.js'),match=read('site/src/matchup-model.js');
@@ -46,7 +47,7 @@ test('every standard recommendation is legal in all slots for all 22 species and
  }
 });
 test('every mutation and calculation component has a typed, dated source record',()=>{
- assert.equal(snapshotDate,'September 2026');assert.equal(reviewDate,'October 25, 2026');
+ assert.equal(snapshotDate,'September 2026');assert.equal(reviewDate,'November 27, 2026');
  for(const m of mutations){
    const row=mutationEvidence.find(x=>x.name===m.n);assert.ok(row);assert.equal(row.id,slug(m.n));assert.ok(row.references.length);
    for(const ref of row.references){const src=sources[ref];assert.ok(src,ref);assert.ok(src.url.startsWith('https://')||src.url.startsWith('./'));assert.ok(src.title&&src.publisher&&src.date&&src.access&&src.scope&&src.claim&&src.status);}

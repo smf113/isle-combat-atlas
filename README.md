@@ -10,13 +10,13 @@ See [Entomb modeling notes](docs/ENTOMB_NOTES.md) for sourcing, caveats, mutatio
 
 ## Features
 
-- Selectable public EVRIMA baseline (last official patch identified 0.21.772) or optional ORIGIN server context; overlays do not silently change combat formulas
-- 22-dinosaur *Atlas-estimated* rankings, adult-matchup cards, solo ratings, and role details
+- Selectable public EVRIMA baseline (last published public patch identified 0.22.159) or optional ORIGIN server context; overlays do not silently change combat formulas
+- 23-species roster including unscored Oviraptor; 22-dinosaur *Atlas-estimated* rankings, adult-matchup cards, solo ratings, and role details
 - Recommended builds and growth areas
 - Legal-mutation filtering by species, diet, sex, slot and Prime status
 - Custom build scores (0–100), attribute splits, synergies, contextual bonuses, pros/cons
 - Growth matchups at 25–100%, including Prime from 75%
-- Expanded mutation glossary including situational options (Cannibalistic, Reniculate Kidneys etc.)
+- Independent All Mutations browser with no dinosaur selected, species-specific reported/disputed pools, historical entries, and lock conditions
 - Saves the current build **locally in the current browser**; **Copy shareable build link** transfers settings across devices
 
 **Important:** This is a heuristic snapshot, not live match data, verified game balance information or a connection to any game server. Scores are relative *role fit*, not win probability. See [methodology](site/methodology.html) and [data notes](docs/DATA_NOTES.md).
@@ -96,10 +96,13 @@ Fight circumstance checkboxes do not impose generic injury penalties on the rati
 
 ## Source accuracy and evidence review — October 25, 2026 (v1.1.0)
 
-Visit [Sources & Methodology](site/sources.html) for searchable per-mutation evidence, source type, publication and review dates, unresolved applicability, historic removals, and a traceable model walkthrough. Original gameplay snapshot remains **September 2026**; latest evidence review is **October 25, 2026**. This is not a claimed ORIGIN server content refresh.
+Visit [Sources & Methodology](site/sources.html) for searchable per-mutation evidence, source type, publication and review dates, unresolved applicability, historic removals, and a traceable model walkthrough. Original gameplay snapshot remains **September 2026**; evidence review for that release was **October 25, 2026**. This is not a claimed ORIGIN server content refresh.
 
 Official 0.21.720 removes Traumatic Thrombosis from new choices. Its historical identifier remains loadable but is excluded from the legacy Custom Build, Entomb and matchup scores. Eligibility now uses a shared explicit slot/diet/sex/availability rule for all consumers; Gastronomic Regeneration, Hypermetabolic Inanition and Tactile Endurance are community-supported in slots 2 and 4; no blanket slot-4 unlock extension. All role presets that referenced removed content have legal alternatives. Eligibility and scoring candidate pools may change build-fit scores, even though the formula and author-created coefficients were not recalibrated.
 
 Do not infer that mutation percentage citations validate combat ratings. Species mass, 1–5 solo/threat, favored/danger lists, interpolation, counter coefficients, multiplicative stacking and victory categories are authored heuristics. The current model Prime peak at 87% differs from a community elder reference's 87.5%; the normal curve still rises to 100% contrary to a reported late decline. Applicability not established; no curve change in this release. Consult in-game state before relying on unlock counts or ORIGIN-specific exceptions.
 
 For subsequent releases, update version-bearing surfaces **together**: `package.json`, footer version in `site/index.html`, latest entry in `site/changelog.html`, this README release marker and `site/sources.html` software version. The regression suite checks those surfaces. Do not modify `evidence.js` snapshot or review dates without a genuine underlying data or evidence review. Track per-release documentation and validation review in [Workbench #49](https://github.com/smf113/Workbench/issues/49).
+
+## Unreleased public-branch evidence update — November 27, 2026
+Public 0.22.159 follows 0.22.157 (Oviraptor, one Entomb storage per species, preserved parental mutation levels; 0.22.159 prevents duplicate hatchling copies). The planner remains a single-lineage simulation; no parent allocation or live storage is simulated. Oviraptor is unscored, with unknown combat inputs. The independent catalog supports no-species browsing and disputed omnivore assignments without altering saved builds. See [data notes](docs/DATA_NOTES.md) for evidence and required in-game observations. Software release number remains 1.2.0 until separate release approval.

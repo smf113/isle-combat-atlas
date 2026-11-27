@@ -6,7 +6,7 @@ import {DEFAULT_SIDE,calculateMatchup} from '../site/src/matchup-model.js';
 import {mutationEvidence,modelEvidence,sources,reviewDate,snapshotDate} from '../site/src/evidence.js';
 const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 test('official public branch is the default and unknown contexts fail closed',()=>{
- assert.equal(DEFAULT_PROFILE,'official');assert.equal(PUBLIC_PATCH,'0.21.772');
+ assert.equal(DEFAULT_PROFILE,'official');assert.equal(PUBLIC_PATCH,'0.22.159');
  assert.deepEqual(profileIds,['official','origin-main','origin-voice']);
  assert.equal(initialProfileId(),'official');
  assert.equal(initialProfileId('?server=origin-main'),'origin-main');
@@ -35,12 +35,12 @@ test('selected server contexts are presentation overlays, never unsupported comb
 });
 test('research scope retains original source date, cites last public patch, and avoids overriding community status',()=>{
  assert.equal(snapshotDate,'September 2026');
- assert.equal(reviewDate,'October 25, 2026');
+ assert.equal(reviewDate,'November 27, 2026');
  assert.equal(sources.official772.status,'official');
  assert.match(sources.official772.claim,/not establish|not.*validate/i);
- assert.equal(mutationEvidence.length,42);
+ assert.equal(mutationEvidence.length,43);
  assert.equal(mutationEvidence.find(m=>m.name==='Traumatic Thrombosis').status,'official');
- assert.ok(modelEvidence.some(m=>m.id==='public-patch'&&m.refs.includes('official772')));
+ assert.ok(modelEvidence.some(m=>m.id==='public-patch'&&m.refs.includes('official159')&&m.refs.includes('official157')));
  assert.ok(modelEvidence.some(m=>m.id==='adult-power'&&m.status==='model-assumption'));
 });
 test('pages expose profile scope and share formats retain existing hash payloads',()=>{

@@ -38,3 +38,6 @@
 ## Evidence transparency — October 25, 2026
 
 The [Sources & Methodology page](../site/sources.html) documents exact implemented matchup coefficients, subjective species data, conditional mutation sources, multiplicative modeling and the separate older ladder. The snapshot remains September 2026, not the review date. Favorable/danger modifiers (1.12/0.86), Prime and growth curves, adult-power terms, favored threshold 1.2, clamp and logarithmic marker mapping are assumptions, not game data. Current Prime peak at 87% differs from a community 87.5% guide and normal growth-to-100% conflicts with a reported frail decline. Both await applicability verification and remain unchanged.
+
+## November 27 public-branch update
+The model still compares 22 archived species; Oviraptor is a roster-only entry pending verified inputs. Entomb imports are single-species lineage snapshots, not hatchling inheritance. Public 0.22.157 preserves inherited parental mutation levels and 0.22.159 eliminates duplicate hatchling copies across parents' different slots. No parent allocation, storage, or new damage formula is inferred. See DATA_NOTES.md for eligibility and evidence gaps. Existing share formats and numeric model inputs are unchanged.

@@ -40,6 +40,7 @@
       M('Xerocole Adaptation','Lifecycle','Herbivore',[1,2,3,4],'Eating plants restores some water.',{off:0,def:0,sus:4,mob:1,util:1},{tags:['Survival']}),
 
       M('Tactile Endurance','Restricted','Herbivore',[2,4],'Converts incoming damage pressure into stamina pressure.',{off:0,def:5,sus:2,mob:1,util:3},{tags:['Combat','Survival']}),
+      M('Intraspecific Aggression','Removed','Unknown',[],'Historical bonus against conspecifics; Quick Guide reports removal in 0.15.116.',{off:0,def:0,sus:0,mob:0,util:0},{note:'Historical reference only. Former slots and current numerical values not established.'}),
       M('Traumatic Thrombosis','Removed','Any',[2],'Prevents death from blood loss while resting.',{off:0,def:5,sus:3,mob:0,util:3},{tags:['Combat','Survival']}),
       M('Gastronomic Regeneration','Restricted','Any',[2,4],'Eating restores a small amount of health.',{off:0,def:3,sus:5,mob:0,util:2},{tags:['Survival']}),
       M('Hypermetabolic Inanition','Restricted','Carnivore',[2,4],'Damage increases as hunger decreases.',{off:5,def:0,sus:0,mob:0,util:2},{tags:['Combat']}),
@@ -80,6 +81,16 @@
       {n:'Troodon',diet:'Carnivore',kg:60,solo:2,threat:3,arch:'small',role:'Pack venom specialist',area:'Dense woodland around active traffic.',fav:['Hypsilophodon'],danger:['Omniraptor','Herrerasaurus','Austroraptor','Dilophosaurus','Gallimimus']}
     ];
 
+    // Published roster and historical scoring inputs are deliberately separate.
+    // Do not pass catalog-only species into the archived combat calculators.
+    const roster=[...dinos,{
+      n:'Oviraptor',diet:'Omnivore',kg:null,solo:null,threat:null,arch:null,
+      role:'Egg specialist — added in public patch 0.22.157',area:null,fav:null,danger:null,
+      catalogOnly:true,added:'0.22.157',
+      description:'From subadult, can locate nests, eggs and hatchlings by scent. Can steal eggs from nests and crack them on rocks; eggs and hatchlings provide all nutrients except those of its own species. Adult mass, combat ratings, growth curve and mutation eligibility are unverified.',
+      source:'https://store.steampowered.com/news/app/376210/view/672886171588625748'
+    }];
+
     const presets={
       bleed:['Hemomania','Congenital Hypoalgesia','Epidermal Fibrosis','Accelerated Prey Drive'],
       brawler:['Cellular Regeneration','Gastronomic Regeneration','Epidermal Fibrosis','Osteosclerosis'],
@@ -104,12 +115,16 @@
  * Official patch 0.21.720 removed Traumatic Thrombosis from new selection.
  * Diet restrictions for omnivores are community-reported and remain unverified on ORIGIN.
  */
-const removedMutations=new Set(['Traumatic Thrombosis']);
+const removedMutations=new Set(['Traumatic Thrombosis','Intraspecific Aggression']);
+const disputedOmnivoreMutations=new Set(['Barometric Sensitivity','Hypervigilance','Photosynthetic Regeneration','Tactile Endurance','Truculency','Xerocole Adaptation']);
+const historicalRemoval=name=>name==='Traumatic Thrombosis'?'0.21.720':name==='Intraspecific Aggression'?'0.15.116':null;
 function availabilityReason(m,d,sex,slot){
   if(!m)return 'unknown mutation';
-  if(removedMutations.has(m.n))return 'removed in public patch 0.21.720';
+  if(removedMutations.has(m.n))return 'removed in public patch '+historicalRemoval(m.n);
   if(!Number.isInteger(slot)||!m.slots.includes(slot))return 'slot not supported by available evidence';
   if(!d)return 'unknown species';
+  if(d.catalogOnly)return 'unverified species eligibility; catalog only';
+  if(d.diet==='Omnivore'&&disputedOmnivoreMutations.has(m.n))return 'unverified omnivore eligibility (conflicting community sources)';
   const dietOK=m.diet==='Any'||m.diet===d.diet||(m.diet==='Herbivore/Omnivore'&&['Herbivore','Omnivore'].includes(d.diet));
   if(!dietOK)return 'diet restriction not satisfied (omnivore exceptions remain unverified)';
   if(m.sex!=='Any'&&m.sex!==sex)return 'sex restriction not satisfied';
@@ -117,4 +132,4 @@ function availabilityReason(m,d,sex,slot){
   return '';
 }
 const eligibleMutation=(m,d,sex,slot)=>!availabilityReason(m,d,sex,slot);
-export {contexts,mutations,dinos,presets,weights,synergies,dims,dimNames,growthSteps,removedMutations,availabilityReason,eligibleMutation};
+export {contexts,mutations,dinos,roster,disputedOmnivoreMutations,historicalRemoval,presets,weights,synergies,dims,dimNames,growthSteps,removedMutations,availabilityReason,eligibleMutation};

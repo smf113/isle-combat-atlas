@@ -2,7 +2,8 @@
 
 **Working name:** Isle Combat Atlas (Automation Workbench, externally hosted implementation)
 **Tracking:** [Workbench #49](https://github.com/smf113/Workbench/issues/49)
-**Active session:** official default + optional ORIGIN profiles + evidence/date presentation; approved October 25, 2026
+**Historical session:** official default + optional ORIGIN profiles + evidence/date presentation; approved October 25, 2026
+**Current session:** November 27, 2026 — public patch 0.22.159, mutation catalog and evidence audit; PR #6 and #7 merged; no new merge authorization.
 **Inherited baseline (already on `main`):** v1.1.0 at `2a755ffc7958734d98a558abac44b57f40a0446e`. Verified successful deployment workflow [40215623954](https://github.com/smf113/isle-combat-atlas/actions/runs/40215623954).
 
 ## Approved boundaries
@@ -16,7 +17,7 @@
 
 ## Development checkpoint — October 25, 2026
 
-State: active implementation **draft PR #6**, built on the inherited v1.1.0 baseline already on `main`. Proposed application version **v1.2.0**, not a released/default-branch version.
+Historical checkpoint: draft PR #6 was built on v1.1.0 and subsequently merged as v1.2.0 at `a99509540ff8d41a0588ac5ea50897c82b5cfa21`; PR #7 hardening is merged at `9e37eb91547fa55ae31f22a49c7fe348f2d76557`. The following retains the historical audit narrative.
 
 Implemented on branch:
 - Official EVRIMA public branch is the default in header, rankings and growth framing. ORIGIN Main and ORIGIN Voice Chat are optional, explicitly sourced server-profile overlays without invented damage or mutation overrides.
@@ -40,3 +41,6 @@ A temporary branch-push Pages trigger was tried without merging. The branch [pus
 The temporary workflow push trigger and concurrency changes were **reverted** so this PR does not permanently alter the standard `main`-only deployment workflow. The existing v1.1.0 production release is the last verified successful deployment. Review the final PR diff and CI before any merge.
 
 Next: user reviews [PR #6](https://github.com/smf113/isle-combat-atlas/pull/6) and **explicitly authorizes merge of its current head** if they want the current Pages pipeline to publish v1.2.0. After an authorized merge, verify `main`, deployment workflow success and available production evidence, then user reviews the live site on desktop/iOS; record issues for correction in a new branch if needed. No local checkout is required. Map and UI cleanup remain later phases.
+
+## November 27, 2026 checkpoint
+Fresh branch `feat/evrima-022159-mutation-catalog-20261127` from protected main `9e37eb91547fa55ae31f22a49c7fe348f2d76557`. Workbench #49 is context only; no Workbench, Pages workflow or security changes. See DATA_NOTES.md for the public patch source and unresolved eligibility matrix. Keep current release version and existing saved payload formats until separately reviewed release; no merge or production deployment authorized. Verify Node and real Chromium at exact PR head, and retain iOS Safari as untested unless separately exercised.
