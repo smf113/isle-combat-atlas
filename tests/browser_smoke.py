@@ -459,6 +459,7 @@ try:
                         expect(shot.locator('#mutationList .mutation-card')).to_have_count(41)
                         shot.locator('#mutationSearch').fill('Tactile Endurance')
                         assert 'Slots 2, 4' in shot.locator('#mutationList').inner_text()
+                        shot.locator('#mutationSearch').fill('')
                         shot.locator('#mutationFilter').select_option('Unlockable')
                         cards = shot.locator('#mutationList .mutation-card')
                         expect(cards).to_have_count(9)
