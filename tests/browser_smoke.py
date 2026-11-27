@@ -278,6 +278,41 @@ try:
         assert_import(page, 'B', plan_b, ['Epidermal Fibrosis', 'Cellular Regeneration'])
         print('Independent imports and negative controls verified', flush=True)
 
+        # Independent no-species catalog: preserve all three saved snapshots.
+        page.locator('[data-tab="custom"]').click()
+        page.locator('#customDino').select_option('Gallimimus')
+        page.locator('#sexSelect').select_option('Female')
+        page.locator('.prime-btn[data-prime="true"]').click()
+        saved_build = page.evaluate('localStorage.getItem("origin-evrima-build-lab-v1")')
+        saved_lineage = planner_snapshot(page)
+        saved_match = saved_matchup(page)
+        page.locator('[data-tab="mutations"]').click()
+        expect(page.locator('#mutationSpecies')).to_have_value('')
+        expect(page.locator('#mutationList .mutation-card')).to_have_count(43)
+        page.locator('#mutationSpecies').select_option('Gallimimus')
+        page.locator('#mutationSearch').fill('Barometric Sensitivity')
+        expect(page.locator('#mutationList .mutation-card')).to_have_count(1)
+        assert 'Unverified' in page.locator('#mutationList').inner_text()
+        assert 'not selectable' in page.locator('#mutationList').inner_text()
+        page.locator('#mutationSpecies').select_option('Beipiaosaurus')
+        page.locator('#mutationSearch').fill('Tactile Endurance')
+        assert 'Unverified' in page.locator('#mutationList').inner_text()
+        page.locator('#mutationSpecies').select_option('Oviraptor')
+        page.locator('#mutationSearch').fill('Cellular Regeneration')
+        assert 'Unverified' in page.locator('#mutationList').inner_text()
+        page.locator('#mutationSpecies').select_option('')
+        expect(page.locator('#mutationList .mutation-card')).to_have_count(43)
+        assert page.evaluate('localStorage.getItem("origin-evrima-build-lab-v1")') == saved_build
+        assert planner_snapshot(page) == saved_lineage
+        assert saved_matchup(page) == saved_match
+        page.locator('[data-tab="custom"]').click()
+        assert page.locator('#slot1 option[value="Barometric Sensitivity"]').count() == 0
+        page.locator('[data-tab="rankings"]').click()
+        page.locator('#dinoSearch').fill('Oviraptor')
+        assert 'Combat stats unknown' in page.locator('#unrankedRoster').inner_text()
+        page.locator('#dinoSearch').fill('')
+        print('Independent mutation catalog, disputed eligibility, Oviraptor and saved state verified', flush=True)
+
         # Narrow viewport, actual controls plus changelog geometry—not just text presence.
         mobile = browser.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=1)
         mobile.set_default_timeout(12000)
@@ -295,6 +330,13 @@ try:
         expect(mobile.locator('[data-server-profile]')).to_have_value('official')
         assert 'server=origin-main' not in mobile.url
         assert_no_horizontal_overflow(mobile, 'Profile selection (390px)')
+        mobile.locator('[data-tab="mutations"]').click()
+        expect(mobile.locator('#mutationSpecies')).to_have_value('')
+        expect(mobile.locator('#mutationList .mutation-card')).to_have_count(43)
+        assert_no_horizontal_overflow(mobile, 'All Mutations (390px)')
+        mobile.locator('#mutationSpecies').select_option('Gallimimus')
+        assert_no_horizontal_overflow(mobile, 'Species mutations (390px)')
+        mobile.locator('#mutationSpecies').select_option('')
         mobile.locator('[data-tab="growth"]').click()
         mobile.locator('#matchupSideA [data-customize-standard]').click()
         clear = mobile.locator('#matchupSideA [data-clear-retained]')
@@ -339,7 +381,7 @@ try:
         # A module script populates evidence after DOMContentLoaded; assert with auto-wait, not an immediate sample.
         expect(mobile.locator('#mutation-traumatic-thrombosis')).to_be_visible(timeout=15000)
         assert 'official' in mobile.locator('#mutation-traumatic-thrombosis .evidence-status').inner_text().lower()
-        expect(mobile.locator('#mutationEvidence .evidence-entry')).to_have_count(42, timeout=15000)
+        expect(mobile.locator('#mutationEvidence .evidence-entry')).to_have_count(43, timeout=15000)
         mobile.locator('#evidenceSearch').fill('Tactile Endurance')
         expect(mobile.locator('#mutationEvidence .evidence-entry')).to_have_count(1)
         assert '2, 4' in mobile.locator('#mutation-tactile-endurance').inner_text()
@@ -354,12 +396,12 @@ try:
         mobile.locator('#evidenceStatus').select_option('all')
         expect(mobile.locator('#calculation-adult-power')).to_be_visible()
         expect(mobile.locator('#calculation-legacy')).to_be_visible()
-        expect(mobile.locator('#speciesEvidence tbody tr')).to_have_count(22)
+        expect(mobile.locator('#speciesEvidence tbody tr')).to_have_count(23)
         assert_no_horizontal_overflow(mobile, 'Sources evidence at 390px')
         assert_readable_content(mobile, '.evidence-main h2, .evidence-main h3, .evidence-main p, .evidence-main a')
         mobile.screenshot(path=str(ARTIFACTS / 'sources-390.png'), full_page=True)
         page.goto(BASE + 'sources.html', wait_until='domcontentloaded')
-        expect(page.locator('#mutationEvidence .evidence-entry')).to_have_count(42, timeout=15000)
+        expect(page.locator('#mutationEvidence .evidence-entry')).to_have_count(43, timeout=15000)
         assert_no_horizontal_overflow(page, 'Sources at 1280px')
         page.screenshot(path=str(ARTIFACTS / 'sources-desktop.png'), full_page=True)
         page.goto(BASE, wait_until='domcontentloaded')
@@ -367,7 +409,7 @@ try:
         page.locator('a.snapshot-chip').focus()
         page.keyboard.press('Enter')
         page.wait_for_url('**/sources.html')
-        expect(page.locator('#mutationEvidence .evidence-entry')).to_have_count(42, timeout=15000)
+        expect(page.locator('#mutationEvidence .evidence-entry')).to_have_count(43, timeout=15000)
         assert page.url.endswith('/sources.html'), 'Snapshot must be keyboard navigable'
         print('Source navigation, desktop/mobile evidence and historical-save checks verified', flush=True)
 

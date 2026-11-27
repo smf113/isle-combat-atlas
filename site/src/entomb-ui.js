@@ -71,7 +71,7 @@ if(root&&panel){
     $('#entombChipList').innerHTML=chosenRows(effective);
     $('#entombContexts').innerHTML=Object.entries(contexts).map(([k,v])=>`<button type="button" class="context-btn" data-lineage-context="${k}" aria-pressed="${state.contexts.includes(k)}">${esc(v)}</button>`).join('');
     const tier=state.generation>=3?'Life 3+':`Life ${state.generation}`;
-    $('#entombTiers').innerHTML=`<div class="section-title">Mutation effectiveness · ${tier}</div><div class="muted mt-1">Exact percentages only where separately documented; other bonuses are deliberately not extrapolated.</div><div class="lineage-tier-list mt-3">${effective.map(r=>{
+    $('#entombTiers').innerHTML=`<div class="section-title">Mutation effectiveness · ${tier}</div><div class="muted mt-1">Community/historical percentages are model inputs, not verified current values. 0.22.157 fixes Xerocole Adaptation and Hematophagy values without publishing numbers; other bonuses are not extrapolated.</div><div class="lineage-tier-list mt-3">${effective.map(r=>{
       const t=tierEffect(r.name,state.generation);
       return `<div class="lineage-tier-row"><span>${esc(r.name)} <span class="muted">(L${r.life})</span></span><strong>${t?t.label:'Not quantified'}</strong></div>`;
     }).join('')||'<span class="muted">No mutations selected.</span>'}</div>`;

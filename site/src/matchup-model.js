@@ -15,7 +15,7 @@ const findDino=n=>dinos.find(d=>d.n===n);
  * with a legal, non-duplicate role-fit alternative. Does not grant unlocks in game.
  */
 export function standardPicks(dino,sex='Male'){
-  const d=findDino(dino)||dinos[0],wanted=presets[d.arch]||[],used=new Set(),result=[];
+  const d=findDino(dino);if(!d)return ['','','',''];const wanted=presets[d.arch]||[],used=new Set(),result=[];
   for(let i=0;i<4;i++){
     const slot=i+1,expected=byName(wanted[i]);
     if(expected&&eligible(expected,d,sex,slot)&&!used.has(expected.n)){
@@ -164,7 +164,7 @@ export function calculateMatchup(aInput,bInput,scenarioInput={}){
   const index=clamp(adjusted,.01,100);
   return {a,b,scenario,baseline,adjusted:index,category:category(index),baselineCategory:category(baseline),aFx,bFx,aCounter,bCounter,
     shift:Math.abs(Math.log(index)-Math.log(baseline))>.025,
-    notes:['Derived from the original atlas adult-power and maturity heuristics, not live damage, HP or skill measurements.','Only conditional quantified damage and damage-reduction mutations affect the ratio. Bleed, fracture, recovery, movement and utility effects are shown separately rather than guessed into generic combat power.','Species mass comparison uses the reference adult weights; actual weight at growth may differ.','Mutation slot unlock growth thresholds (25/50/75/75%) are approximate; inherited Entomb mutations are modeled active from juvenile.']};
+    notes:['Derived from the original atlas adult-power and maturity heuristics, not live damage, HP or skill measurements.','Only conditional quantified damage and damage-reduction mutations affect the ratio. Bleed, fracture, recovery, movement and utility effects are shown separately rather than guessed into generic combat power.','Species mass comparison uses the reference adult weights; actual weight at growth may differ.','Mutation slot unlock growth thresholds (25/50/75/75%) are approximate; inherited Entomb mutations are modeled active from juvenile. Hatchling inheritance is not simulated: public 0.22.157 preserves parental levels and 0.22.159 prevents duplicate parental copies.']};
 }
 export function compareAcrossGrowth(a,b,scenario,values=[25,35,45,50,55,65,75,87,100]){
   return values.map(g=>({growth:g,...calculateMatchup({...a,growth:g},b,scenario)}));

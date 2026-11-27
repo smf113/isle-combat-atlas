@@ -3,17 +3,17 @@
  * not proof that archived heuristic combat data matches the live game.
  * Server overlays describe only published features; they never modify damage.
  */
-export const PUBLIC_PATCH = '0.21.772';
+export const PUBLIC_PATCH = '0.22.159';
 export const DEFAULT_PROFILE = 'official';
 export const PROFILE_STORAGE = 'isle-atlas-profile-v1';
 export const profiles = Object.freeze([
   Object.freeze({
     id: 'official', name: 'Official EVRIMA', badge: 'Official EVRIMA',
     growth: 'Standard growth', rules: 'Public branch',
-    description: 'Public EVRIMA branch 0.21.772 is the latest published patch identified in this review. Exact combat and mutation values are not all verified for that patch.',
+    description: 'Public branch 0.22.159 (November 26, 2026), following 0.22.157 (Oviraptor and per-species Entomb storage). Archived combat values and current mutation eligibility remain unverified.',
     growthAdvice: 'Use the normal in-game progression and verify migration, diets and mutation unlocks in the current client. The Atlas does not model growth duration.',
     evidenceNote: 'Public patch announcements establish release changes, but the Atlas combat ratings and most catalog details remain archival or community-reported; they are not official balance telemetry.',
-    source: 'https://steamcommunity.com/games/TheIsle/announcements/',
+    source: 'https://store.steampowered.com/news/app/376210/view/672886805331182174',
     serverType: 'official', growthMultiplier: null
   }),
   Object.freeze({
