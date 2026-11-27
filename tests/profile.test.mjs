@@ -48,8 +48,8 @@ test('pages expose profile scope and share formats retain existing hash payloads
  const app=read('site/src/app.js'),entomb=read('site/src/entomb-ui.js'),match=read('site/src/matchup-ui.js');
  assert.match(index, /data-server-profile/);
  assert.match(index, /data-profile-badge/);
- assert.match(index, /data-profile-grow-advice/);
- assert.match(index, /Evidence reviewed/);
+ assert.doesNotMatch(index, /data-profile-grow-advice|Evidence reviewed/);
+ assert.match(index, /Sources &amp; Methodology/);
  assert.match(sourcesPage, /data-server-profile/);
  assert.match(sourcesPage, /data-profile-evidence-note/);
  assert.match(read('site/src/sources-ui.js'), /mutationScope\(m\)/);

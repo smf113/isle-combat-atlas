@@ -46,13 +46,12 @@ if(root&&panel){
     const options=legalChoices(slot).filter(m=>!blocked.has(m.n));
     const why=selected?availabilityReason(byName(selected),getDino(),state.sex,slot):'';
     const excluded=selected&&(why||blocked.has(selected));
-    return `<label class="lineage-slot ${enabled?'':'lineage-disabled'}"><span class="field-label">Mutation slot ${slot}${slot===4?' · Prime':''}</span><select class="control w-full" data-lineage-slot="${slot}" ${enabled?'':'disabled'}><option value="">— Empty —</option>${excluded?`<option value="${esc(selected)}" selected>${esc(selected)} — EXCLUDED: ${esc(why||'duplicate retained mutation')}</option>`:''}${options.filter(m=>m.n!==selected||!excluded).map(m=>`<option value="${esc(m.n)}" ${m.n===selected?'selected':''}>${esc(m.n)}${m.tags.includes('Unlockable')?' ◇':''}</option>`).join('')}</select></label>`;
+    return `<label class="lineage-slot ${enabled?'':'lineage-disabled'}"><span class="field-label">Mutation slot ${slot}${slot===4?' · Prime':''}</span><select class="control w-full" data-lineage-slot="${slot}" ${enabled?'':'disabled'}><option value="">— Empty —</option>${excluded?`<option value="${esc(selected)}" selected>${esc(selected)} — EXCLUDED: unavailable</option>`:''}${options.filter(m=>m.n!==selected||!excluded).map(m=>`<option value="${esc(m.n)}" ${m.n===selected?'selected':''}>${esc(m.n)}${m.tags.includes('Unlockable')?' ◇':''}</option>`).join('')}</select></label>`;
   }
   function chosenRows(active){return active.map(r=>{
-    const t=tierEffect(r.name,state.generation),m=byName(r.name);
     const isNew=r.life===state.generation;
-    return `<div class="lineage-chip ${isNew?'fresh':'inherited'}"><span class="lineage-chip-name">${esc(r.name)}</span><span class="lineage-chip-meta">${isNew?'New':'Retained'} · L${r.life}${t?' · '+t.label:''}${!t&&m?' · effect unverified':''}</span></div>`;
-  }).join('')||'<span class="muted">Select a mutation to see your lineage.</span>'}
+    return `<div class="lineage-chip ${isNew?'fresh':'inherited'}"><span class="lineage-chip-name">${esc(r.name)}</span><span class="lineage-chip-meta">${isNew?'New':'Retained'} · L${r.life}</span></div>`;
+  }).join('')||'<span class="muted">No mutations selected.</span>'}
   function render(){
     const life=state.lives[state.generation-1],lineage=activeAt(state.lives,state.generation),cap=capacityAt(state.lives,state.generation),d=getDino();
     // Retained old identifiers may remain displayed, but cannot influence fit if unavailable or ineligible.
@@ -66,24 +65,17 @@ if(root&&panel){
     }).join('');
     $('#entombPrime').checked=life.prime;
     $('#entombPicks').innerHTML=[1,2,3,4].map(makeSelector).join('');
-    $('#entombMetrics').innerHTML=`<div class="lineage-metrics"><div><span class="muted block">Effective mutations</span><strong>${effective.length}<span class="muted">/${cap}</span></strong></div><div><span class="muted block">Retained from prior lives</span><strong>${effective.filter(r=>r.inherited).length}</strong></div><div><span class="muted block">Relative build fit</span><strong>${metrics.fit}<span class="muted">/100</span></strong></div></div>
-      <div class="muted mt-2">Relative fit is an experimental role-weighted heuristic, not a combat win probability. It compares this ${d.arch} build with other ${cap}-slot combinations and credits verified Entomb bonuses.</div>`;
+    $('#entombMetrics').innerHTML=`<div class="lineage-metrics"><div><span class="muted block">Effective mutations</span><strong>${effective.length}<span class="muted">/${cap}</span></strong></div><div><span class="muted block">Retained from prior lives</span><strong>${effective.filter(r=>r.inherited).length}</strong></div><div><span class="muted block">Atlas Score</span><strong>${metrics.fit}<span class="muted">/100</span></strong></div></div>`;
     $('#entombChipList').innerHTML=chosenRows(effective);
     $('#entombContexts').innerHTML=Object.entries(contexts).map(([k,v])=>`<button type="button" class="context-btn" data-lineage-context="${k}" aria-pressed="${state.contexts.includes(k)}">${esc(v)}</button>`).join('');
-    const tier=state.generation>=3?'Life 3+':`Life ${state.generation}`;
-    $('#entombTiers').innerHTML=`<div class="section-title">Mutation effectiveness · ${tier}</div><div class="muted mt-1">Community/historical percentages are model inputs, not verified current values. 0.22.157 fixes Xerocole Adaptation and Hematophagy values without publishing numbers; other bonuses are not extrapolated.</div><div class="lineage-tier-list mt-3">${effective.map(r=>{
-      const t=tierEffect(r.name,state.generation);
-      return `<div class="lineage-tier-row"><span>${esc(r.name)} <span class="muted">(L${r.life})</span></span><strong>${t?t.label:'Not quantified'}</strong></div>`;
-    }).join('')||'<span class="muted">No mutations selected.</span>'}</div>`;
     $('#entombNotes').innerHTML=[
-      state.generation===1?'<span>Reach 100% growth to Entomb and start Life 2.</span>':`<span>Life ${state.generation}: inherited benefits are calculated at ${tier} effectiveness. Each new pick starts at this life’s tier.</span>`,
-      lineage.dropped.length?`<span class="lineage-warning">${lineage.dropped.length} non-replicating mutation${lineage.dropped.length===1?'':'s'} did not carry over: ${lineage.dropped.map(x=>esc(x.name)).join(', ')}.</span>`:'',
-      lineage.overwritten.length?`<span class="lineage-warning">Oldest lineage cohort rotated out: ${lineage.overwritten.map(x=>esc(x.name)).join(', ')}.</span>`:'',
-      state.lives.slice(Math.max(0,state.generation-4),state.generation).some(l=>l.picks.some((n,i)=>n&&availabilityReason(byName(n),d,state.sex,i+1)))?`<span class="lineage-warning">One or more historical or ineligible picks are preserved but excluded from effective mutations. Inspect the selected slot and <a href="./sources.html">mutation evidence</a>.</span>`:'',
-      lineage.duplicates.length?`<span class="lineage-warning">${lineage.duplicates.length} duplicate selection${lineage.duplicates.length===1?'':'s'} ignored. You cannot stack the same mutation twice.</span>`:'',
-      metrics.unverified?`<span>${metrics.unverified} active mutation effect${metrics.unverified===1?'':'s'} lack verified numeric progression; base contribution is held constant.</span>`:'',
-      `<span>Normal death breaks the lineage; Unofficial-server storage/restore features and game updates may affect actual behavior.</span>`
+      lineage.dropped.length?`<span class="lineage-warning">Not retained: ${lineage.dropped.map(x=>esc(x.name)).join(', ')}</span>`:'',
+      lineage.overwritten.length?`<span class="lineage-warning">Rotated out: ${lineage.overwritten.map(x=>esc(x.name)).join(', ')}</span>`:'',
+      state.lives.slice(Math.max(0,state.generation-4),state.generation).some(l=>l.picks.some((n,i)=>n&&availabilityReason(byName(n),d,state.sex,i+1)))?'<span class="lineage-warning">Excluded selections</span>':'',
+      lineage.duplicates.length?`<span class="lineage-warning">${lineage.duplicates.length} duplicate selections excluded</span>`:''
     ].filter(Boolean).map(s=>`<p>${s}</p>`).join('');
+    if($('#entombNotes').innerHTML)$('#entombNotes').innerHTML='<div class="section-title mt-4">Lineage changes</div>'+$('#entombNotes').innerHTML;
+    
     $('#entombDimensions').innerHTML=dims.map(k=>{const v=metrics.stats[k],max=Math.max(1,...dims.map(x=>metrics.stats[x]));return `<div class="metric"><span>${esc(dimNames[k])}</span><span class="metric-track"><span class="metric-fill block" style="width:${Math.min(100,Math.round(v/max*100))}%"></span></span><strong>${v.toFixed(1)}</strong></div>`}).join('');
     $('#entombShareStatus').textContent='';
   }
@@ -121,7 +113,7 @@ if(root&&panel){
     if(e.target.closest('#entombShare')){
       const url=shareUrlWithProfile('lineage='+encodeURIComponent(JSON.stringify(saved())));
       try{await navigator.clipboard.writeText(url);$('#entombShareStatus').textContent='Lineage link copied.';$('#entombShareFallback').classList.add('hidden')}
-      catch{$('#entombShareFallback').value=url;$('#entombShareFallback').classList.remove('hidden');$('#entombShareFallback').focus();$('#entombShareFallback').select();$('#entombShareStatus').textContent='Copy this link to open your lineage on another device.'}
+      catch{$('#entombShareFallback').value=url;$('#entombShareFallback').classList.remove('hidden');$('#entombShareFallback').focus();$('#entombShareFallback').select();$('#entombShareStatus').textContent='Copy lineage link.'}
     }
   });
   function legalChoicesFor(d,sex,slot){
