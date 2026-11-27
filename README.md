@@ -96,7 +96,7 @@ Fight circumstance checkboxes do not impose generic injury penalties on the rati
 
 ## Source accuracy and evidence review — October 25, 2026 (v1.1.0)
 
-Visit [Sources & Methodology](site/sources.html) for searchable per-mutation evidence, source type, publication and review dates, unresolved applicability, historic removals, and a traceable model walkthrough. Original gameplay snapshot remains **September 2026**; latest evidence review is **October 25, 2026**. This is not a claimed ORIGIN server content refresh.
+Visit [Sources & Methodology](site/sources.html) for searchable per-mutation evidence, source type, publication and review dates, unresolved applicability, historic removals, and a traceable model walkthrough. Original gameplay snapshot remains **September 2026**; evidence review for that release was **October 25, 2026**. This is not a claimed ORIGIN server content refresh.
 
 Official 0.21.720 removes Traumatic Thrombosis from new choices. Its historical identifier remains loadable but is excluded from the legacy Custom Build, Entomb and matchup scores. Eligibility now uses a shared explicit slot/diet/sex/availability rule for all consumers; Gastronomic Regeneration, Hypermetabolic Inanition and Tactile Endurance are community-supported in slots 2 and 4; no blanket slot-4 unlock extension. All role presets that referenced removed content have legal alternatives. Eligibility and scoring candidate pools may change build-fit scores, even though the formula and author-created coefficients were not recalibrated.
 

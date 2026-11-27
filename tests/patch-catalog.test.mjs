@@ -20,7 +20,7 @@ test('all species and mutations have scoped audit records, and disputed omnivore
     assert.equal(new Set(audit.map(r=>r.species+'/'+r.mutation)).size,audit.length);
     for(const name of ['Gallimimus','Beipiaosaurus','Oviraptor'])for(const m of mutations.filter(m=>disputedOmnivoreMutations.has(m.n))){
       const d=roster.find(d=>d.n===name),record=catalogEligibility(m,d,profile);
-      assert.equal(record.status,'unverified');assert.equal(record.build,'0.22.159');
+      assert.equal(record.status,'unverified');assert.equal(record.build,'0.22.159');assert.equal(record.observedBuild,null);assert.match(record.buildScope,/reference only/);assert.ok(record.sources.every(s=>s.startsWith('https://')));
       assert.ok(m.slots.every(slot=>!eligibleMutation(m,d,'Female',slot)));
       assert.ok(catalogEntries(name,false,profile).includes(m));
     }
