@@ -440,6 +440,9 @@ try:
                         shot.locator('#tab-'+tab).evaluate('(el) => window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY)')
                         shot.screenshot(path=str(ARTIFACTS / (phase+'-'+tab+'-390.png')), full_page=False)
                     if phase == 'after':
+                        shot.locator('[data-tab="rankings"]').click()
+                        expect(shot.locator('.rank-head')).to_be_visible()
+                        expect(shot.locator('.rank-head span').nth(2)).to_have_text('Atlas Score')
                         for tab in ['rankings','builds','custom','entomb','growth','mutations']:
                             shot.locator('[data-tab="'+tab+'"]').click()
                             assert_no_horizontal_overflow(shot, 'Editorial '+tab+' (390px)')
@@ -450,6 +453,7 @@ try:
                         assert shot.locator('a[href*="methodology.html"]').count() == 0
                         shot.locator('[data-tab="mutations"]').click()
                         expect(shot.locator('#mutationSpecies')).to_have_value('')
+                        expect(shot.locator('#mutationSpecies option:checked')).to_have_text('All Mutations')
                         expect(shot.locator('#mutationList .mutation-card')).to_have_count(41)
                         shot.locator('#mutationSearch').fill('Tactile Endurance')
                         assert 'Slots 2, 4' in shot.locator('#mutationList').inner_text()

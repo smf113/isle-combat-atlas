@@ -79,7 +79,7 @@ button,input,select{font:inherit}button{cursor:pointer;transition:background .14
     #origin-lab-v3 .growth-row.current{background:var(--viz-accent-bg);border-radius:8px;padding-left:7px;padding-right:7px}
     #origin-lab-v3 .mutation-card{min-width:0}
     #origin-lab-v3 .disabled-slot{opacity:.5}
-    @media(max-width:620px){#origin-lab-v3 .rank-head{display:none}#origin-lab-v3 .rank-row{grid-template-columns:32px minmax(110px,1fr) 48px 48px}#origin-lab-v3 .rank-row .score-wrap{grid-column:2/-1;grid-row:2}#origin-lab-v3 .score-hero{grid-template-columns:1fr}#origin-lab-v3 .score-circle{margin:auto}#origin-lab-v3 .procon{grid-template-columns:1fr}#origin-lab-v3 .context-grid{grid-template-columns:1fr}#origin-lab-v3 .growth-row{grid-template-columns:48px minmax(75px,.7fr) minmax(0,1.5fr)}}
+    @media(max-width:620px){#origin-lab-v3 .rank-head{grid-template-columns:32px minmax(110px,1fr) 48px 48px;font-size:12px}#origin-lab-v3 .rank-head span:nth-child(3){grid-column:2/-1;grid-row:2}#origin-lab-v3 .rank-row{grid-template-columns:32px minmax(110px,1fr) 48px 48px}#origin-lab-v3 .rank-row .score-wrap{grid-column:2/-1;grid-row:2}#origin-lab-v3 .score-hero{grid-template-columns:1fr}#origin-lab-v3 .score-circle{margin:auto}#origin-lab-v3 .procon{grid-template-columns:1fr}#origin-lab-v3 .context-grid{grid-template-columns:1fr}#origin-lab-v3 .growth-row{grid-template-columns:48px minmax(75px,.7fr) minmax(0,1.5fr)}}
   
 
 /* Neutralize native button backgrounds when running outside ChatGPT's host */
