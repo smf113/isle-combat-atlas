@@ -8,6 +8,9 @@ import json
 import re
 import subprocess
 import time
+import io
+import tarfile
+import tempfile
 from pathlib import Path
 from urllib.parse import quote
 from playwright.sync_api import sync_playwright, expect
@@ -170,7 +173,7 @@ try:
         page.locator('#matchupConditions [data-condition="aBleeding"]').check()
         assert saved_matchup(page)['scenario']['aBleeding'] is True
         assert current_ratio()==base_ratio
-        assert 'no modeled score change' in page.locator('#matchupResult .matchup-condition-feedback').inner_text()
+        assert 'Atlas Score unchanged' in page.locator('#matchupResult .matchup-condition-feedback').inner_text()
         page.locator('#matchupConditions [data-condition="aBleeding"]').uncheck()
         # B bleeding activates A's Hemomania and moves the marker left.
         page.locator('#matchupConditions [data-condition="bBleeding"]').check()
@@ -207,7 +210,7 @@ try:
         for flag in ['aBleeding','bBleeding','aLowHealth','bLowHealth']:
             page.locator(f'#matchupConditions [data-condition="{flag}"]').check()
             assert current_ratio()==neutral, f'{flag} incorrectly changed baseline combat power'
-            assert 'no modeled score change' in page.locator('#matchupResult .matchup-condition-feedback').inner_text()
+            assert 'Atlas Score unchanged' in page.locator('#matchupResult .matchup-condition-feedback').inner_text()
             page.locator(f'#matchupConditions [data-condition="{flag}"]').uncheck()
         page.locator('#matchupReset').click()
         print('Fight-condition change and no-effect feedback verified', flush=True)
@@ -288,20 +291,18 @@ try:
         saved_match = saved_matchup(page)
         page.locator('[data-tab="mutations"]').click()
         expect(page.locator('#mutationSpecies')).to_have_value('')
-        expect(page.locator('#mutationList .mutation-card')).to_have_count(43)
+        expect(page.locator('#mutationList .mutation-card')).to_have_count(41)
         page.locator('#mutationSpecies').select_option('Gallimimus')
         page.locator('#mutationSearch').fill('Barometric Sensitivity')
-        expect(page.locator('#mutationList .mutation-card')).to_have_count(1)
-        assert 'Unverified' in page.locator('#mutationList').inner_text()
-        assert 'not selectable' in page.locator('#mutationList').inner_text()
+        expect(page.locator('#mutationList .mutation-card')).to_have_count(0)
         page.locator('#mutationSpecies').select_option('Beipiaosaurus')
         page.locator('#mutationSearch').fill('Tactile Endurance')
-        assert 'Unverified' in page.locator('#mutationList').inner_text()
+        expect(page.locator('#mutationList .mutation-card')).to_have_count(0)
         page.locator('#mutationSpecies').select_option('Oviraptor')
         page.locator('#mutationSearch').fill('Cellular Regeneration')
-        assert 'Unverified' in page.locator('#mutationList').inner_text()
+        expect(page.locator('#mutationList .mutation-card')).to_have_count(0)
         page.locator('#mutationSpecies').select_option('')
-        expect(page.locator('#mutationList .mutation-card')).to_have_count(43)
+        expect(page.locator('#mutationList .mutation-card')).to_have_count(41)
         assert page.evaluate('localStorage.getItem("origin-evrima-build-lab-v1")') == saved_build
         assert planner_snapshot(page) == saved_lineage
         assert saved_matchup(page) == saved_match
@@ -309,7 +310,8 @@ try:
         assert page.locator('#slot1 option[value="Barometric Sensitivity"]').count() == 0
         page.locator('[data-tab="rankings"]').click()
         page.locator('#dinoSearch').fill('Oviraptor')
-        assert 'Combat stats unknown' in page.locator('#unrankedRoster').inner_text()
+        assert 'Oviraptor' in page.locator('#unrankedRoster').inner_text()
+        assert 'Combat stats unknown' not in page.locator('#unrankedRoster').inner_text()
         page.locator('#dinoSearch').fill('')
         print('Independent mutation catalog, disputed eligibility, Oviraptor and saved state verified', flush=True)
 
@@ -332,7 +334,7 @@ try:
         assert_no_horizontal_overflow(mobile, 'Profile selection (390px)')
         mobile.locator('[data-tab="mutations"]').click()
         expect(mobile.locator('#mutationSpecies')).to_have_value('')
-        expect(mobile.locator('#mutationList .mutation-card')).to_have_count(43)
+        expect(mobile.locator('#mutationList .mutation-card')).to_have_count(41)
         assert_no_horizontal_overflow(mobile, 'All Mutations (390px)')
         mobile.locator('#mutationSpecies').select_option('Gallimimus')
         assert_no_horizontal_overflow(mobile, 'Species mutations (390px)')
@@ -375,8 +377,9 @@ try:
         assert mobile.locator('#slot2').input_value() == ''
         mobile.locator('[data-tab="mutations"]').click()
         mobile.locator('#mutationSearch').fill('Traumatic Thrombosis')
-        assert 'REMOVED 0.21.720' in mobile.locator('#mutationList').inner_text()
-        mobile.locator('#mutationList a[href*="sources.html#mutation-traumatic-thrombosis"]').click()
+        expect(mobile.locator('#mutationList .mutation-card')).to_have_count(0)
+        mobile.locator('#researchChip').click()
+        mobile.goto(BASE + 'sources.html#mutation-traumatic-thrombosis', wait_until='domcontentloaded')
         assert mobile.url.endswith('/sources.html#mutation-traumatic-thrombosis')
         # A module script populates evidence after DOMContentLoaded; assert with auto-wait, not an immediate sample.
         expect(mobile.locator('#mutation-traumatic-thrombosis')).to_be_visible(timeout=15000)
@@ -412,6 +415,52 @@ try:
         expect(page.locator('#mutationEvidence .evidence-entry')).to_have_count(43, timeout=15000)
         assert page.url.endswith('/sources.html'), 'Snapshot must be keyboard navigable'
         print('Source navigation, desktop/mobile evidence and historical-save checks verified', flush=True)
+
+
+        # Render the exact pre-cleanup main and candidate at identical phone width.
+        baseline_sha = 'c6eeae3904a6381885be0c366e51ccced53252d3'
+        if subprocess.run(['git', 'cat-file', '-e', baseline_sha + '^{commit}'], cwd=ROOT).returncode:
+            subprocess.run(['git', 'fetch', '--depth=1', 'origin', baseline_sha], cwd=ROOT, check=True)
+        baseline_bytes = subprocess.check_output(['git', 'archive', baseline_sha, 'site'], cwd=ROOT)
+        with tempfile.TemporaryDirectory() as before_dir:
+            with tarfile.open(fileobj=io.BytesIO(baseline_bytes)) as archive:
+                archive.extractall(before_dir, filter='data')
+            before_server = subprocess.Popen(['python', '-m', 'http.server', '8766', '--bind', '127.0.0.1',
+                                               '--directory', str(Path(before_dir) / 'site')],
+                                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            try:
+                time.sleep(1)
+                ARTIFACTS.mkdir(exist_ok=True)
+                for phase, url in [('before', 'http://127.0.0.1:8766/'), ('after', BASE)]:
+                    shot = browser.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=1)
+                    shot.goto(url, wait_until='networkidle')
+                    for tab in ['mutations', 'rankings', 'builds']:
+                        shot.locator('[data-tab="'+tab+'"]').click()
+                        assert_no_horizontal_overflow(shot, phase+' '+tab+' (390px)')
+                        shot.evaluate('window.scrollTo(0, 0)')
+                        shot.screenshot(path=str(ARTIFACTS / (phase+'-'+tab+'-390.png')), full_page=False)
+                    if phase == 'after':
+                        for tab in ['rankings','builds','custom','entomb','growth','mutations']:
+                            shot.locator('[data-tab="'+tab+'"]').click()
+                            assert_no_horizontal_overflow(shot, 'Editorial '+tab+' (390px)')
+                            visible = shot.locator('#tab-'+tab).inner_text()
+                            assert not re.search(r'\b(?:unverified|historical|community-reported|model assumption|heuristic|disputed)\b|Inspect evidence|read more|night\.;', visible, re.I), (tab, visible)
+                        assert shot.locator('a[href*="sources.html"]').count() == 1
+                        assert shot.locator('#researchChip').inner_text() == 'Sources & Methodology'
+                        assert shot.locator('a[href*="methodology.html"]').count() == 0
+                        shot.locator('[data-tab="mutations"]').click()
+                        expect(shot.locator('#mutationSpecies')).to_have_value('')
+                        expect(shot.locator('#mutationList .mutation-card')).to_have_count(41)
+                        shot.locator('#mutationSearch').fill('Tactile Endurance')
+                        assert 'Slots 2, 4' in shot.locator('#mutationList').inner_text()
+                        shot.locator('#mutationSpecies').select_option('Gallimimus')
+                        shot.locator('#mutationSearch').fill('Tactile Endurance')
+                        expect(shot.locator('#mutationList .mutation-card')).to_have_count(0)
+                    shot.close()
+            finally:
+                before_server.terminate()
+                before_server.wait(timeout=5)
+        print('Editorial before/after screenshots (390px), six tabs and single Sources link verified', flush=True)
 
         assert not errors, errors
         print('Chromium browser smoke and 390px checks: PASS', flush=True)

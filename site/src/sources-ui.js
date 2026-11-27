@@ -1,5 +1,6 @@
 import {mutationEvidence,modelEvidence,speciesEvidence,sources,snapshotDate,reviewDate,branchScope} from './evidence.js';
 import {activeProfile,initProfileUI} from './profiles.js';
+import {mutations} from './data.js';
 const $=s=>document.querySelector(s),safe=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sourceLinks=refs=>refs.map(key=>{const s=sources[key];return `<a href="#source-${safe(key)}">${safe(s.title)} (${safe(s.publisher)}; ${safe(s.date)}; accessed ${safe(s.access)})</a>`;}).join('; ');
 initProfileUI();
@@ -11,9 +12,9 @@ const mutationScope=m=>{
 $('#snapshotDate').textContent=snapshotDate;$('#reviewDate').textContent=reviewDate;$('#branchScope').textContent=branchScope;
 function drawMutations(){
  const query=$('#evidenceSearch').value.trim().toLowerCase(),status=$('#evidenceStatus').value;
- const filtered=mutationEvidence.filter(m=>(status==='all'||status===m.status)&&[m.name,m.claim,m.slot,m.diet,m.caveat,m.status].join(' ').toLowerCase().includes(query));
+ const filtered=mutationEvidence.filter(m=>(status==='all'||status===m.status)&&[m.name,m.claim,m.slot,m.diet,m.caveat,m.status,mutations.find(x=>x.n===m.name)?.unlock].join(' ').toLowerCase().includes(query));
  $('#evidenceCount').textContent=`${filtered.length} of ${mutationEvidence.length} mutation evidence records`;
- $('#mutationEvidence').innerHTML=filtered.map(m=>`<article class="evidence-entry" id="${safe(m.id)}"><div class="evidence-title"><h3>${safe(m.name)}</h3><a href="#${safe(m.id)}" aria-label="Link to ${safe(m.name)} evidence">#</a></div><p class="evidence-status">${safe(m.status)}</p><p>${safe(m.claim)}</p><p><strong>Slots:</strong> ${safe(m.slot)} · <strong>Diet:</strong> ${safe(m.diet)} · <strong>Sex:</strong> ${safe(m.sex)}</p>${m.tier?`<p><strong>Community / historical Entomb tiers (not current verified values):</strong> ${m.tier.map(safe).join(' / ')}</p>`:''}<p><strong>Applicability:</strong> ${safe(m.caveat)} ${safe(mutationScope(m))}</p><p class="evidence-source"><strong>References:</strong> ${sourceLinks(m.references)}</p></article>`).join('');
+ $('#mutationEvidence').innerHTML=filtered.map(m=>`<article class="evidence-entry" id="${safe(m.id)}"><div class="evidence-title"><h3>${safe(m.name)}</h3><a href="#${safe(m.id)}" aria-label="Link to ${safe(m.name)} evidence">#</a></div><p class="evidence-status">${safe(m.status)}</p><p>${safe(m.claim)}</p><p><strong>Slots:</strong> ${safe(m.slot)} · <strong>Diet:</strong> ${safe(m.diet)} · <strong>Sex:</strong> ${safe(m.sex)}</p>${m.tier?`<p><strong>Community / historical Entomb tiers (not current verified values):</strong> ${m.tier.map(safe).join(' / ')}</p>`:''}<p><strong>Historical unlock:</strong> ${safe(mutations.find(x=>x.n===m.name)?.unlock||'None documented')}</p><p><strong>Applicability:</strong> ${safe(m.caveat)} ${safe(mutationScope(m))}</p><p class="evidence-source"><strong>References:</strong> ${sourceLinks(m.references)}</p></article>`).join('');
 }
 window.addEventListener('atlas:profile-change',drawMutations);
 $('#evidenceSearch').addEventListener('input',drawMutations);$('#evidenceStatus').addEventListener('change',drawMutations);drawMutations();
