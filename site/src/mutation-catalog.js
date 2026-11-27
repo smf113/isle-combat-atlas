@@ -26,14 +26,6 @@ const playerEffects={
   'Parthenogenesis':'Allows nesting without a mate.'
 };
 const playerEffect=m=>playerEffects[m.n]||m.effect.replace(/^\d+% /,'').replace(/^./,x=>x.toUpperCase());
-const playerUnlocks={
-  'Augmented Tapetum':'Kill players at night',
-  'Enhanced Digestion':'Maintain nutrients',
-  'Multichambered Lungs':'Sprint or fast-swim',
-  'Osteophagic':'Eat bones while fractured',
-  'Reinforced Tendons':'Jump',
-  'Reniculate Kidneys':'Drink saltwater'
-};
 export function playerCatalogEntries(species='',profile='official'){
   const d=roster.find(x=>x.n===species);
   return catalogEntries(species,false,profile).filter(m=>!removedMutations.has(m.n)&&(!d||catalogEligibility(m,d,profile).status==='reported'));
@@ -44,7 +36,7 @@ export function initMutationCatalog(root){
   function render(){
     const q=search.value.trim().toLowerCase(),f=filter.value;
     const entries=playerCatalogEntries(species.value,activeProfile().id).filter(m=>(f==='all'||m.cat===f||m.tags.includes(f))&&(!q||[m.n,playerEffect(m)].join(' ').toLowerCase().includes(q)));
-    context.textContent=entries.length+' mutations';
+    context.textContent=entries.length?entries.length+' mutations':'No entries to display';
     list.replaceChildren();
     for(const m of entries){
       const card=document.createElement('article');card.className='mutation-card';
@@ -52,7 +44,7 @@ export function initMutationCatalog(root){
         !disputedOmnivoreMutations.has(m.n)&&m.diet!=='Any'?m.diet:'',
         m.sex!=='Any'?m.sex+' only':'',
         m.slots.length!==4?'Slots '+m.slots.join(', '):'',
-        m.cat==='Unlockable'?(playerUnlocks[m.n]?'Unlock: '+playerUnlocks[m.n]:'Unlock required'):''
+        m.cat==='Unlockable'?'Unlock required':''
       ].filter(Boolean);
       card.innerHTML='<strong>'+esc(m.n)+'</strong><p class="muted">'+esc(playerEffect(m))+'</p>'+
         (restrictions.length?'<p class="muted">'+esc(restrictions.join(' · '))+'</p>':'');
